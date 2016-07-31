@@ -134,13 +134,13 @@ function myreactions_activate()
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction",
-		"template" => "<div class=\"myreactions-reaction\">
+		"template" => "<div class=\"myreactions-reaction{\$class}\">
   {\$reaction_image} <span>{\$count}</span>
 </div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_path']}\" />"
+		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />"
 	);
 	
 	foreach($templates as $template)
@@ -189,7 +189,7 @@ function myreactions_postbit(&$post)
 	shuffle($all_reactions);
 	$number = rand(1, 20);
 	$type = rand(0, 1);
-	$sizes = array(16,24,32);
+	$sizes = array(16,20,24,28,32);
 	$size = $sizes[0];
 
 	switch($type)
@@ -202,6 +202,9 @@ function myreactions_postbit(&$post)
 				$reaction = $all_reactions[$k];
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
+			$reaction = array('reaction_path' => 'images/reactions/plus.png');
+			$class = ' class="reaction-add"';
+			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
@@ -215,6 +218,11 @@ function myreactions_postbit(&$post)
 				$count = rand(1, 100);
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
+			$reaction = array('reaction_path' => 'images/reactions/plus.png');
+			$class = ' reaction-add';
+			$count = '';
+			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
 	}
@@ -241,9 +249,19 @@ function myreactions_postbit(&$post)
   float: right;
   margin-left: 10px;
 }
+.myreactions-container .reaction-add {
+  display: none;
+}
+.myreactions-container:hover .reaction-add {
+  display: inline-block;
+}
+.myreactions-reaction.reaction-add span {
+  display: none;
+}
 .myreactions-reactions img {
   margin: 5px;
   float: left;
+  display: inline-block;
 }
 .myreactions-container.reactions-16 img {
   width: 16px;
@@ -253,6 +271,14 @@ function myreactions_postbit(&$post)
   font-size: 12px;
   line-height: 16px;
 }
+.myreactions-container.reactions-20 img {
+  width: 20px;
+  height: 20px;
+}
+.myreactions-container.reactions-20 .myreactions-reaction span {
+  font-size: 13px;
+  line-height: 20px;
+}
 .myreactions-container.reactions-24 img {
   width: 24px;
   height: 24px;
@@ -260,6 +286,14 @@ function myreactions_postbit(&$post)
 .myreactions-container.reactions-24 .myreactions-reaction span {
   font-size: 14px;
   line-height: 24px;
+}
+.myreactions-container.reactions-28 img {
+  width: 28px;
+  height: 28px;
+}
+.myreactions-container.reactions-28 .myreactions-reaction span {
+  font-size: 15px;
+  line-height: 28px;
 }
 .myreactions-container.reactions-32 img {
   width: 32px;
