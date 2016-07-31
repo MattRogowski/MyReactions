@@ -219,7 +219,8 @@ function myreactions_postbit(&$post)
 
 /*
 .myreactions-container {
-  margin:10px;
+  padding:10px;
+  border-top: 1px solid #ccc;
 }
 .myreactions-reactions {
   padding: 5px;
