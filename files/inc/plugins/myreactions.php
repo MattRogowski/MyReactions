@@ -123,6 +123,7 @@ function myreactions_activate()
 		"title" => "myreactions_container",
 		"template" => "<div class=\"myreactions-container reactions-{\$size}\">
   {\$post_reactions}
+  <div class=\"myreactions-reacted\">{\$reacted_with}</div>
 </div>"
 	);
 	$templates[] = array(
@@ -140,7 +141,7 @@ function myreactions_activate()
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />"
+		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />{\$remove}"
 	);
 	
 	foreach($templates as $template)
@@ -182,9 +183,10 @@ function myreactions_cache()
 
 function myreactions_postbit(&$post)
 {
-	global $cache, $templates;
+	global $cache, $lang, $templates;
 
 	$all_reactions = $cache->read('myreactions');
+	$lang->load('myreactions');
 
 	shuffle($all_reactions);
 	$number = rand(1, 20);
@@ -202,10 +204,19 @@ function myreactions_postbit(&$post)
 				$reaction = $all_reactions[$k];
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
+
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
 			$class = ' class="reaction-add"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
+
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
+
+			$reacted_with = $lang->myreactions_you_reacted_with;
+			$reaction = $all_reactions[$k];
+			$class = '';
+			$remove = ' ('.$lang->myreactions_remove.')';
+			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+
 			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
 		case 1:
@@ -218,11 +229,19 @@ function myreactions_postbit(&$post)
 				$count = rand(1, 100);
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
+
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
 			$class = ' reaction-add';
 			$count = '';
 			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
+
+			$reacted_with = $lang->myreactions_you_reacted_with;
+			$reaction = $all_reactions[$k];
+			$class = '';
+			$remove = ' ('.$lang->myreactions_remove.')';
+			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+
 			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
 	}
@@ -263,44 +282,62 @@ function myreactions_postbit(&$post)
   float: left;
   display: inline-block;
 }
+.myreactions-container .myreactions-reacted img {
+  position: relative;
+}
 .myreactions-container.reactions-16 img {
   width: 16px;
   height: 16px;
 }
-.myreactions-container.reactions-16 .myreactions-reaction span {
+.myreactions-container.reactions-16 .myreactions-reaction span, .myreactions-container.reactions-16 .myreactions-reacted {
   font-size: 12px;
   line-height: 16px;
+}
+.myreactions-container.reactions-16 .myreactions-reacted img {
+  top: 4px;
 }
 .myreactions-container.reactions-20 img {
   width: 20px;
   height: 20px;
 }
-.myreactions-container.reactions-20 .myreactions-reaction span {
+.myreactions-container.reactions-20 .myreactions-reaction span, .myreactions-container.reactions-20 .myreactions-reacted {
   font-size: 13px;
   line-height: 20px;
+}
+.myreactions-container.reactions-20 .myreactions-reacted img {
+  top: 6px;
 }
 .myreactions-container.reactions-24 img {
   width: 24px;
   height: 24px;
 }
-.myreactions-container.reactions-24 .myreactions-reaction span {
+.myreactions-container.reactions-24 .myreactions-reaction span, .myreactions-container.reactions-24 .myreactions-reacted {
   font-size: 14px;
   line-height: 24px;
+}
+.myreactions-container.reactions-24 .myreactions-reacted img {
+  top: 7px;
 }
 .myreactions-container.reactions-28 img {
   width: 28px;
   height: 28px;
 }
-.myreactions-container.reactions-28 .myreactions-reaction span {
+.myreactions-container.reactions-28 .myreactions-reaction span, .myreactions-container.reactions-28 .myreactions-reacted {
   font-size: 15px;
   line-height: 28px;
+}
+.myreactions-container.reactions-28 .myreactions-reacted img {
+  top: 7px;
 }
 .myreactions-container.reactions-32 img {
   width: 32px;
   height: 32px;
 }
-.myreactions-container.reactions-32 .myreactions-reaction span {
+.myreactions-container.reactions-32 .myreactions-reaction span, .myreactions-container.reactions-32 .myreactions-reacted {
   font-size: 16px;
   line-height: 32px;
+}
+.myreactions-container.reactions-32 .myreactions-reacted img {
+  top: 8px;
 }
 */
