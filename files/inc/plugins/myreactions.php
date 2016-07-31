@@ -121,7 +121,7 @@ function myreactions_activate()
 	$templates = array();
 	$templates[] = array(
 		"title" => "myreactions_container",
-		"template" => "<div class=\"myreactions-container\">
+		"template" => "<div class=\"myreactions-container reactions-{\$size}\">
   {\$post_reactions}
 </div>"
 	);
@@ -189,6 +189,9 @@ function myreactions_postbit(&$post)
 	shuffle($all_reactions);
 	$number = rand(1, 20);
 	$type = rand(0, 1);
+	$sizes = array(16,24,32);
+	$size = $sizes[0];
+
 	switch($type)
 	{
 		case 0:
@@ -219,7 +222,7 @@ function myreactions_postbit(&$post)
 
 /*
 .myreactions-container {
-  padding:10px;
+  padding: 10px;
   border-top: 1px solid #ccc;
 }
 .myreactions-reactions {
@@ -234,20 +237,36 @@ function myreactions_postbit(&$post)
   background: #f5f5f5;
   border: 1px solid #ccc;
 }
-.myreactions-reaction {
-  position: relative;
-}
 .myreactions-reaction span {
   float: right;
-  margin-left: 5px;
-  font-size: 12px;
-}
-.myreactions-container img {
-  width: 16px;
-  height:16px;
+  margin-left: 10px;
 }
 .myreactions-reactions img {
-  margin:5px;
-  float:left;
+  margin: 5px;
+  float: left;
+}
+.myreactions-container.reactions-16 img {
+  width: 16px;
+  height: 16px;
+}
+.myreactions-container.reactions-16 .myreactions-reaction span {
+  font-size: 12px;
+  line-height: 16px;
+}
+.myreactions-container.reactions-24 img {
+  width: 24px;
+  height: 24px;
+}
+.myreactions-container.reactions-24 .myreactions-reaction span {
+  font-size: 14px;
+  line-height: 24px;
+}
+.myreactions-container.reactions-32 img {
+  width: 32px;
+  height: 32px;
+}
+.myreactions-container.reactions-32 .myreactions-reaction span {
+  font-size: 16px;
+  line-height: 32px;
 }
 */
