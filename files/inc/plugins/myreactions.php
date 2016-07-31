@@ -129,6 +129,7 @@ function myreactions_activate()
 		"title" => "myreactions_reactions",
 		"template" => "<div class=\"myreactions-reactions\">
   {\$reactions}
+  <div style=\"clear:both\"></div>
 </div>"
 	);
 	$templates[] = array(
@@ -185,26 +186,34 @@ function myreactions_postbit(&$post)
 
 	$all_reactions = $cache->read('myreactions');
 
-	if($post['pid'] == 149)
+	shuffle($all_reactions);
+	$number = rand(1, 20);
+	$type = rand(0, 1);
+	switch($type)
 	{
-		$reactions = '';
-		foreach($all_reactions as $reaction)
-		{
-			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
-		}
-		eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
-		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
-	}
-	if($post['pid'] == 150)
-	{
-		$post_reactions = '';
-		foreach($all_reactions as $reaction)
-		{
-			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
-			$count = 1;
-			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
-		}
-		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+		case 0:
+			$reactions = '';
+			for($i = 1; $i <= $number; $i++)
+			{
+				$k = $i - 1;
+				$reaction = $all_reactions[$k];
+				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
+			}
+			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
+			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+			break;
+		case 1:
+			$post_reactions = '';
+			for($i = 1; $i <= $number; $i++)
+			{
+				$k = $i - 1;
+				$reaction = $all_reactions[$k];
+				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+				$count = rand(1, 100);
+				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
+			}
+			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+			break;
 	}
 }
 
@@ -213,11 +222,11 @@ function myreactions_postbit(&$post)
   margin:10px;
 }
 .myreactions-reactions {
-  padding: 10px 0 0 10px;
+  padding: 5px;
 }
 .myreactions-reaction {
   display: inline-block;
-  margin: 5px 5px 0px 0px;
+  margin: 2px;
   padding: 5px;
 }
 .myreactions-reactions, .myreactions-reaction {
@@ -230,12 +239,14 @@ function myreactions_postbit(&$post)
 .myreactions-reaction span {
   float: right;
   margin-left: 5px;
+  font-size: 12px;
 }
 .myreactions-container img {
   width: 16px;
   height:16px;
 }
 .myreactions-reactions img {
-  margin:0px 5px 5px 0px;
+  margin:5px;
+  float:left;
 }
 */
