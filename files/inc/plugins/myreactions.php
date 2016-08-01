@@ -268,7 +268,7 @@ function myreactions_postbit(&$post)
 }
 .myreactions-reaction span {
   float: right;
-  margin-left: 10px;
+  margin-left: 5px;
 }
 .myreactions-reactions .reaction-add, .myreactions-reaction.reaction-add {
   display: none;
@@ -280,7 +280,7 @@ function myreactions_postbit(&$post)
   display: none;
 }
 .myreactions-reactions .reaction-add + span {
-  margin: 0px 5px;
+  margin-right: 5px;
 }
 .myreactions-reaction.reaction-add.reaction-add-force span, .myreactions-reactions .reaction-add.reaction-add-force + span {
   display: inline;
