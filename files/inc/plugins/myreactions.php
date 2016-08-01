@@ -117,11 +117,15 @@ function myreactions_activate()
 	myreactions_deactivate();
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
+
+	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
+	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	
 	$templates = array();
 	$templates[] = array(
 		"title" => "myreactions_container",
-		"template" => "<div class=\"myreactions-container reactions-{\$size}\">
+		"template" => "<div style=\"clear:both\"></div>
+<div class=\"myreactions-container reactions-{\$size}\">
   {\$post_reactions}
   <div class=\"myreactions-reacted\">{\$reacted_with}</div>
 </div>"
@@ -164,6 +168,9 @@ function myreactions_deactivate()
 	global $mybb, $db;
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
+
+	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
+	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	
 	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image')");
 }
