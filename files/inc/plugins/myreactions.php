@@ -271,6 +271,9 @@ function myreactions_postbit(&$post)
 .myreactions-reaction.reaction-add span, .myreactions-reactions .reaction-add + span {
   display: none;
 }
+.myreactions-reactions .reaction-add + span {
+  margin: 0px 5px;
+}
 .myreactions-reaction.reaction-add.reaction-add-force span, .myreactions-reactions .reaction-add.reaction-add-force + span {
   display: inline;
 }
@@ -291,7 +294,7 @@ function myreactions_postbit(&$post)
   line-height: 16px;
 }
 .myreactions-container.reactions-16 .myreactions-reactions .reaction-add + span {
-  font-size: 13px;
+  font-size: 12px;
   line-height: 26px;
 }
 .myreactions-container.reactions-16 .myreactions-reacted img {
@@ -306,7 +309,7 @@ function myreactions_postbit(&$post)
   line-height: 20px;
 }
 .myreactions-container.reactions-20 .myreactions-reactions .reaction-add + span {
-  font-size: 15px;
+  font-size: 13px;
   line-height: 30px;
 }
 .myreactions-container.reactions-20 .myreactions-reacted img {
@@ -321,7 +324,7 @@ function myreactions_postbit(&$post)
   line-height: 24px;
 }
 .myreactions-container.reactions-24 .myreactions-reactions .reaction-add + span {
-  font-size: 17px;
+  font-size: 14px;
   line-height: 34px;
 }
 .myreactions-container.reactions-24 .myreactions-reacted img {
@@ -336,7 +339,7 @@ function myreactions_postbit(&$post)
   line-height: 28px;
 }
 .myreactions-container.reactions-28 .myreactions-reactions .reaction-add + span {
-  font-size: 19px;
+  font-size: 15px;
   line-height: 38px;
 }
 .myreactions-container.reactions-28 .myreactions-reacted img {
@@ -351,7 +354,7 @@ function myreactions_postbit(&$post)
   line-height: 32px;
 }
 .myreactions-container.reactions-32 .myreactions-reactions .reaction-add + span {
-  font-size: 21px;
+  font-size: 16px;
   line-height: 42px;
 }
 .myreactions-container.reactions-32 .myreactions-reacted img {
