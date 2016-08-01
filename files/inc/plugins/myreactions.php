@@ -210,14 +210,6 @@ function myreactions_postbit(&$post)
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
-
-			$reacted_with = $lang->myreactions_you_reacted_with;
-			$reaction = $all_reactions[$k];
-			$class = '';
-			$remove = ' ('.$lang->myreactions_remove.')';
-			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
-
-			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
 		case 1:
 			$post_reactions = '';
@@ -239,25 +231,22 @@ function myreactions_postbit(&$post)
 			$count = $lang->myreactions_add;
 			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
-
-			$reacted_with = $lang->myreactions_you_reacted_with;
-			$reaction = $all_reactions[$k];
-			$class = '';
-			$remove = ' ('.$lang->myreactions_remove.')';
-			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
-
-			eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 			break;
 	}
+
+	$reacted_with = $lang->myreactions_you_reacted_with;
+	$reaction = $all_reactions[$k];
+	$class = '';
+	$remove = ' ('.$lang->myreactions_remove.')';
+	eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+
+	eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 }
 
 /*
 .myreactions-container {
   padding: 10px;
   border-top: 1px solid #ccc;
-}
-.myreactions-reactions {
-  padding: 5px;
 }
 .myreactions-reaction {
   display: inline-block;
@@ -267,6 +256,7 @@ function myreactions_postbit(&$post)
 .myreactions-reactions, .myreactions-reaction {
   background: #f5f5f5;
   border: 1px solid #ccc;
+  display: inline-block;
 }
 .myreactions-reaction span {
   float: right;
