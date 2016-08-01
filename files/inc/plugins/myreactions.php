@@ -129,7 +129,7 @@ function myreactions_activate()
 	$templates[] = array(
 		"title" => "myreactions_reactions",
 		"template" => "<div class=\"myreactions-reactions\">
-  {\$reactions}
+  {\$reactions}<span>{\$lang->myreactions_add}</span>
   <div style=\"clear:both\"></div>
 </div>"
 	);
@@ -189,7 +189,7 @@ function myreactions_postbit(&$post)
 	$lang->load('myreactions');
 
 	shuffle($all_reactions);
-	$number = rand(1, 20);
+	$number = rand(0, 5);
 	$type = rand(0, 1);
 	$sizes = array(16,20,24,28,32);
 	$size = $sizes[0];
@@ -206,7 +206,7 @@ function myreactions_postbit(&$post)
 			}
 
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
-			$class = ' class="reaction-add"';
+			$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
@@ -232,7 +232,11 @@ function myreactions_postbit(&$post)
 
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
 			$class = ' reaction-add';
-			$count = '';
+			if(!$number)
+			{
+				$class .= ' reaction-add-force';
+			}
+			$count = $lang->myreactions_add;
 			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 
@@ -268,14 +272,17 @@ function myreactions_postbit(&$post)
   float: right;
   margin-left: 10px;
 }
-.myreactions-container .reaction-add {
+.myreactions-reactions .reaction-add, .myreactions-reaction.reaction-add {
   display: none;
 }
-.myreactions-container:hover .reaction-add {
+.myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force {
   display: inline-block;
 }
-.myreactions-reaction.reaction-add span {
+.myreactions-reaction.reaction-add span, .myreactions-reactions .reaction-add + span {
   display: none;
+}
+.myreactions-reaction.reaction-add.reaction-add-force span, .myreactions-reactions .reaction-add.reaction-add-force + span {
+  display: inline;
 }
 .myreactions-reactions img {
   margin: 5px;
@@ -293,6 +300,10 @@ function myreactions_postbit(&$post)
   font-size: 12px;
   line-height: 16px;
 }
+.myreactions-container.reactions-16 .myreactions-reactions .reaction-add + span {
+  font-size: 13px;
+  line-height: 26px;
+}
 .myreactions-container.reactions-16 .myreactions-reacted img {
   top: 4px;
 }
@@ -303,6 +314,10 @@ function myreactions_postbit(&$post)
 .myreactions-container.reactions-20 .myreactions-reaction span, .myreactions-container.reactions-20 .myreactions-reacted {
   font-size: 13px;
   line-height: 20px;
+}
+.myreactions-container.reactions-20 .myreactions-reactions .reaction-add + span {
+  font-size: 15px;
+  line-height: 30px;
 }
 .myreactions-container.reactions-20 .myreactions-reacted img {
   top: 6px;
@@ -315,6 +330,10 @@ function myreactions_postbit(&$post)
   font-size: 14px;
   line-height: 24px;
 }
+.myreactions-container.reactions-24 .myreactions-reactions .reaction-add + span {
+  font-size: 17px;
+  line-height: 34px;
+}
 .myreactions-container.reactions-24 .myreactions-reacted img {
   top: 7px;
 }
@@ -326,6 +345,10 @@ function myreactions_postbit(&$post)
   font-size: 15px;
   line-height: 28px;
 }
+.myreactions-container.reactions-28 .myreactions-reactions .reaction-add + span {
+  font-size: 19px;
+  line-height: 38px;
+}
 .myreactions-container.reactions-28 .myreactions-reacted img {
   top: 7px;
 }
@@ -336,6 +359,10 @@ function myreactions_postbit(&$post)
 .myreactions-container.reactions-32 .myreactions-reaction span, .myreactions-container.reactions-32 .myreactions-reacted {
   font-size: 16px;
   line-height: 32px;
+}
+.myreactions-container.reactions-32 .myreactions-reactions .reaction-add + span {
+  font-size: 21px;
+  line-height: 42px;
 }
 .myreactions-container.reactions-32 .myreactions-reacted img {
   top: 8px;

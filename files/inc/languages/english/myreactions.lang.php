@@ -18,5 +18,6 @@
 **/
 
 $l['myreactions_you_reacted_with'] = 'You reacted with:';
+$l['myreactions_add'] = 'Add Reaction';
 $l['myreactions_remove'] = 'Remove';
 ?>
