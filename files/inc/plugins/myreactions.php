@@ -250,7 +250,7 @@ function myreactions_postbit(&$post)
 
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
 			$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
-			$onclick = ' onclick="MyReactions.react('.$post['pid'].');"';
+			$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
@@ -274,7 +274,7 @@ function myreactions_postbit(&$post)
 			{
 				$class .= ' reaction-add-force';
 			}
-			$onclick = ' onclick="MyReactions.react('.$post['pid'].');"';
+			$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
 			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			break;
 	}
@@ -307,6 +307,7 @@ function myreactions_react()
 		$reactions = $recent_reactions = '';
 		foreach($all_reactions as $reaction)
 		{
+			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 		}
 		
@@ -316,12 +317,20 @@ function myreactions_react()
 		{
 			$k = $i - 1;
 			$reaction = $all_reactions[$k];
+			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
 			eval("\$recent_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 		}
 		eval("\$recent = \"".$templates->get('myreactions_react_recent', 1, 0)."\";");
 
 		eval("\$myreactions = \"".$templates->get('myreactions_react', 1, 0)."\";");
 		echo $myreactions;
+		exit;
+	}
+	elseif($mybb->input['action'] == 'do_myreactions')
+	{
+		$post = get_post($mybb->input['pid']);
+		myreactions_postbit($post);
+		echo $post['myreactions'];
 		exit;
 	}
 }
@@ -449,4 +458,6 @@ function myreactions_react()
 	height: 24px;
 	padding: 5px;
 }
+.reaction-add, .myreactions-react img {
+	cursor: pointer;
 */
