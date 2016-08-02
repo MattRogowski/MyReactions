@@ -17,7 +17,9 @@
  * limitations under the License.
 **/
 
-$l['myreactions_you_reacted_with'] = 'You reacted with:';
 $l['myreactions_add'] = 'Add Reaction';
 $l['myreactions_remove'] = 'Remove';
+$l['myreactions_all'] = 'All Reactions';
+$l['myreactions_recent'] = 'Recent Reactions';
+$l['myreactions_you_reacted_with'] = 'You reacted with:';
 ?>

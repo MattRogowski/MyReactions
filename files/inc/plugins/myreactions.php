@@ -29,6 +29,7 @@ if(!defined("IN_MYBB"))
 }
 
 $plugins->add_hook('postbit', 'myreactions_postbit');
+$plugins->add_hook('misc_start', 'myreactions_react');
 
 function myreactions_info()
 {
@@ -139,13 +140,48 @@ function myreactions_activate()
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction",
-		"template" => "<div class=\"myreactions-reaction{\$class}\">
+		"template" => "<div class=\"myreactions-reaction{\$class}\"{\$onclick}>
   {\$reaction_image} <span>{\$count}</span>
 </div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />{\$remove}"
+		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />{\$remove}{\$onclick}"
+	);
+	$templates[] = array(
+		"title" => "myreactions_react",
+		"template" => "<div class=\"modal\">
+	<div class=\"myreactions-react\">
+		<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" class=\"tborder\">
+			<tr>
+				<td class=\"thead\"><strong>{\$lang->myreactions_add}</strong></td>
+			</tr>
+			<tr>
+				<td class=\"trow1\">{\$post_preview}</td>
+			</tr>
+			{\$recent}
+			<tr>
+				<td class=\"tcat\">{\$lang->myreactions_all}</td>
+			</tr>
+			<tr>
+				<td class=\"trow1\" align=\"left\">
+					{\$reactions}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_react_recent",
+		"template" => "<tr>
+	<td class=\"tcat\">{\$lang->myreactions_recent}</td>
+</tr>
+<tr>
+	<td class=\"trow1\" align=\"left\">
+		{\$recent_reactions}
+	</td>
+</tr>"
 	);
 	
 	foreach($templates as $template)
@@ -190,7 +226,7 @@ function myreactions_cache()
 
 function myreactions_postbit(&$post)
 {
-	global $cache, $lang, $templates;
+	global $lang, $cache, $templates;
 
 	$all_reactions = $cache->read('myreactions');
 	$lang->load('myreactions');
@@ -214,6 +250,7 @@ function myreactions_postbit(&$post)
 
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
 			$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
+			$onclick = ' onclick="MyReactions.react('.$post['pid'].');"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
@@ -230,24 +267,63 @@ function myreactions_postbit(&$post)
 			}
 
 			$reaction = array('reaction_path' => 'images/reactions/plus.png');
+			$count = $lang->myreactions_add;
+			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 			$class = ' reaction-add';
 			if(!$number)
 			{
 				$class .= ' reaction-add-force';
 			}
-			$count = $lang->myreactions_add;
-			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+			$onclick = ' onclick="MyReactions.react('.$post['pid'].');"';
 			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			break;
 	}
 
 	$reacted_with = $lang->myreactions_you_reacted_with;
 	$reaction = $all_reactions[$k];
-	$class = '';
+	$class = $onclick = '';
 	$remove = ' ('.$lang->myreactions_remove.')';
 	eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
 
 	eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+}
+
+function myreactions_react()
+{
+	global $mybb, $lang, $cache, $templates, $theme;
+
+	if($mybb->input['action'] == 'myreactions')
+	{
+		$all_reactions = $cache->read('myreactions');
+		$lang->load('myreactions');
+
+		$post = get_post($mybb->input['pid']);
+		$post_preview = $post['message'];
+		if(my_strlen($post['message']) > 100)
+		{
+			$post_preview = my_substr($post['message'], 0, 140).'...';
+		}
+
+		$reactions = $recent_reactions = '';
+		foreach($all_reactions as $reaction)
+		{
+			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+		}
+		
+		shuffle($all_reactions);
+		$number = rand(1, 10);
+		for($i = 1; $i <= $number; $i++)
+		{
+			$k = $i - 1;
+			$reaction = $all_reactions[$k];
+			eval("\$recent_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+		}
+		eval("\$recent = \"".$templates->get('myreactions_react_recent', 1, 0)."\";");
+
+		eval("\$myreactions = \"".$templates->get('myreactions_react', 1, 0)."\";");
+		echo $myreactions;
+		exit;
+	}
 }
 
 /*
@@ -367,5 +443,10 @@ function myreactions_postbit(&$post)
 }
 .myreactions-container.reactions-32 .myreactions-reacted img {
   top: 8px;
+}
+.myreactions-react img {
+	width: 24px;
+	height: 24px;
+	padding: 5px;
 }
 */
