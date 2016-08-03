@@ -60,7 +60,7 @@ function myreactions_install()
 		  PRIMARY KEY (`reaction_id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
 
-		$reactions = array("angry","anguished","balloon","broken_heart","clap","confounded","confused","crossed_fingers","disappointed","disappointed_relieved","dizzy_face","expressionless","eyes","face_with_rolling_eyes","facepalm","fearful","fire","flushed","grimacing","grin","grinning","hear_no_evil","heart","heart_eyes","ill","information_desk_person","innocent","joy","laughing","mask","nerd_face","neutral_face","ok_hand","open_mouth","pensive","persevere","poop","pray","rage","raised_hands","rofl","scream","see_no_evil","shrug","sleeping","slightly_frowning_face","slightly_smiling_face","smile","smiling_imp","smirk","sob","speak_no_evil","star","stuck_out_tongue","stuck_out_tongue_closed_eyes","stuck_out_tongue_winking_eye","sunglasses","sweat","sweat_smile","tada","thinking_face","thumbsdown","thumbsup","tired_face","triumph","unamused","upside_down_face","v","white_frowning_face","wink","worried","zipper_mouth_face");
+		$reactions = array("angry","anguished","awesome","balloon","broken_heart","clap","confounded","confused","crossed_fingers","disappointed","disappointed_relieved","disapproval","dizzy_face","expressionless","eyes","face_with_rolling_eyes","facepalm","fearful","fire","flushed","grimacing","grin","grinning","hear_no_evil","heart","heart_eyes","ill","information_desk_person","innocent","joy","laughing","mask","nerd_face","neutral_face","ok_hand","open_mouth","pensive","persevere","poop","pray","rage","raised_hands","rofl","scream","see_no_evil","shrug","sleeping","slightly_frowning_face","slightly_smiling_face","smile","smiling_imp","smirk","sob","speak_no_evil","star","stuck_out_tongue","stuck_out_tongue_closed_eyes","stuck_out_tongue_winking_eye","sunglasses","suspicious","sweat","sweat_smile","tada","thinking_face","thumbsdown","thumbsup","tired_face","triumph","unamused","upside_down_face","v","whatever","white_frowning_face","wink","worried","zipper_mouth_face");
 
 		foreach($reactions as $reaction)
 		{
@@ -146,7 +146,7 @@ function myreactions_activate()
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class} />{\$remove}{\$onclick}"
+		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class}{\$onclick} />{\$remove}"
 	);
 	$templates[] = array(
 		"title" => "myreactions_react",
@@ -305,6 +305,7 @@ function myreactions_react()
 		}
 
 		$reactions = $recent_reactions = '';
+
 		foreach($all_reactions as $reaction)
 		{
 			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
@@ -312,15 +313,18 @@ function myreactions_react()
 		}
 		
 		shuffle($all_reactions);
-		$number = rand(1, 10);
-		for($i = 1; $i <= $number; $i++)
+		$number = rand(0, 10);
+		if($number)
 		{
-			$k = $i - 1;
-			$reaction = $all_reactions[$k];
-			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
-			eval("\$recent_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			for($i = 1; $i <= $number; $i++)
+			{
+				$k = $i - 1;
+				$reaction = $all_reactions[$k];
+				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+				eval("\$recent_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			}
+			eval("\$recent = \"".$templates->get('myreactions_react_recent', 1, 0)."\";");
 		}
-		eval("\$recent = \"".$templates->get('myreactions_react_recent', 1, 0)."\";");
 
 		eval("\$myreactions = \"".$templates->get('myreactions_react', 1, 0)."\";");
 		echo $myreactions;
