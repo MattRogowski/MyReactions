@@ -28,6 +28,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
+$plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
 $plugins->add_hook('misc_start', 'myreactions_react');
 
@@ -261,6 +262,8 @@ linear=Linear",
 		
 		$db->insert_query("templates", $insert);
 	}
+
+	myreactions_cache();
 }
 
 function myreactions_deactivate()
@@ -296,31 +299,61 @@ function myreactions_cache()
 	$myreactions = array();
 	while($myreaction = $db->fetch_array($query))
 	{
-		$myreactions[] = $myreaction;
+		$myreactions[$myreaction['reaction_id']] = $myreaction;
 	}
 	$cache->update('myreactions', $myreactions);
 }
 
+function myreactions_showthread()
+{
+	global $mybb, $db, $thread_reactions;
+
+	$tid = intval($mybb->input['tid']);
+
+	$reactions = $db->query('
+		SELECT '.TABLE_PREFIX.'post_reactions.*
+		FROM '.TABLE_PREFIX.'post_reactions
+		JOIN '.TABLE_PREFIX.'posts ON (pid = post_reaction_pid)
+		WHERE tid = \''.$tid.'\'
+		ORDER BY post_reaction_date ASC
+	');
+	$thread_reactions = array();
+	while($reaction = $db->fetch_array($reactions))
+	{
+		$thread_reactions[$reaction['post_reaction_pid']][] = $reaction;
+	}
+}
+
 function myreactions_postbit(&$post)
 {
-	global $mybb, $lang, $cache, $templates;
+	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
 	$all_reactions = $cache->read('myreactions');
 	$lang->load('myreactions');
 
-	shuffle($all_reactions);
-	$number = rand(0, 5);
-	$type = rand(0, 1);
+	$received_reactions = $reacted = array();
+	if(array_key_exists($post['pid'], $thread_reactions))
+	{
+		$received_reactions = $thread_reactions[$post['pid']];
+		foreach($received_reactions as $reaction)
+		{
+			if($reaction['post_reaction_uid'] == $mybb->user['uid'])
+			{
+				$reacted[] = $reaction;
+			}
+		}
+	}
+
 	$size = $mybb->settings['myreactions_size'];
+	$reacted = false;
 
 	switch($mybb->settings['myreactions_type'])
 	{
 		case 'linear':
 			$reactions = '';
-			for($i = 1; $i <= $number; $i++)
+			foreach($received_reactions as $received_reaction)
 			{
-				$k = $i - 1;
-				$reaction = $all_reactions[$k];
+				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 
@@ -336,10 +369,9 @@ function myreactions_postbit(&$post)
 			break;
 		case 'grouped':
 			$post_reactions = '';
-			for($i = 1; $i <= $number; $i++)
+			foreach($received_reactions as $received_reaction)
 			{
-				$k = $i - 1;
-				$reaction = $all_reactions[$k];
+				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 				$count = rand(1, 100);
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
@@ -357,7 +389,7 @@ function myreactions_postbit(&$post)
 			break;
 	}
 
-	if($number)
+	if($reacted)
 	{
 		$reacted_with = $lang->myreactions_you_reacted_with;
 		$reaction = $all_reactions[$k];
