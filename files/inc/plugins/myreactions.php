@@ -138,6 +138,18 @@ linear=Linear",
 		"value" => "grouped"
 	);
 	$settings[] = array(
+		"name" => "myreactions_size",
+		"title" => "Display Size",
+		"description" => "The size of the reaction emojis",
+		"optionscode" => "radio
+16=16px x 16px
+20=20px x 20px
+24=24px x 24px
+28=28px x 28px
+32=32px x 32px",
+		"value" => "16"
+	);
+	$settings[] = array(
 		"name" => "myreactions_multiple",
 		"title" => "Allow multiple reactions",
 		"description" => "Whether users can add more than one reaction to a post (regardless of setting the same reaction can never be given by the same user on the same post)",
@@ -259,6 +271,7 @@ function myreactions_deactivate()
 	
 	$settings = array(
 		"myreactions_type",
+		"myreactions_size",
 		"myreactions_multiple",
 		"myreactions_profile"
 	);
@@ -299,7 +312,7 @@ function myreactions_postbit(&$post)
 	$number = rand(0, 5);
 	$type = rand(0, 1);
 	$sizes = array(16,20,24,28,32);
-	$size = $sizes[0];
+	$size = $mybb->settings['myreactions_size'];
 
 	switch($mybb->settings['myreactions_type'])
 	{
@@ -312,7 +325,7 @@ function myreactions_postbit(&$post)
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 
-			if(true||$post['uid'] != $mybb->user['uid'])
+			if($post['uid'] != $mybb->user['uid'])
 			{
 				$reaction = array('reaction_path' => 'images/reactions/plus.png');
 				$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
@@ -333,7 +346,7 @@ function myreactions_postbit(&$post)
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			if(true||$post['uid'] != $mybb->user['uid'])
+			if($post['uid'] != $mybb->user['uid'])
 			{
 				$reaction = array('reaction_path' => 'images/reactions/plus.png');
 				$count = $lang->myreactions_add;
