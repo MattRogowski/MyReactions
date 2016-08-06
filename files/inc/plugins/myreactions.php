@@ -311,7 +311,6 @@ function myreactions_postbit(&$post)
 	shuffle($all_reactions);
 	$number = rand(0, 5);
 	$type = rand(0, 1);
-	$sizes = array(16,20,24,28,32);
 	$size = $mybb->settings['myreactions_size'];
 
 	switch($mybb->settings['myreactions_type'])
