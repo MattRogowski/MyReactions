@@ -116,6 +116,58 @@ function myreactions_activate()
 	global $mybb, $db;
 	
 	myreactions_deactivate();
+
+	$settings_group = array(
+		"name" => "myreactions",
+		"title" => "MyReactions Settings",
+		"description" => "Settings for the MyReactions plugin.",
+		"disporder" => "28",
+		"isdefault" => 0
+	);
+	$db->insert_query("settinggroups", $settings_group);
+	$gid = $db->insert_id();
+	
+	$settings = array();
+	$settings[] = array(
+		"name" => "myreactions_type",
+		"title" => "Display Type",
+		"description" => "<strong>Grouped</strong> - each reaction is only displayed once per post, in its own button with a count of the number of times it has been given to that post, ordered by number of times given<br /><strong>Linear</strong> - lists each individual reaction given in the order it was given",
+		"optionscode" => "radio
+grouped=Grouped
+linear=Linear",
+		"value" => "grouped"
+	);
+	$settings[] = array(
+		"name" => "myreactions_multiple",
+		"title" => "Allow multiple reactions",
+		"description" => "Whether users can add more than one reaction to a post (regardless of setting the same reaction can never be given by the same user on the same post)",
+		"optionscode" => "yesno",
+		"value" => "1"
+	);
+	$settings[] = array(
+		"name" => "myreactions_profile",
+		"title" => "Display on profiles",
+		"description" => "Display the most given and most received reactions on user profiles",
+		"optionscode" => "yesno",
+		"value" => "1"
+	);
+	$i = 1;
+	foreach($settings as $setting)
+	{
+		$insert = array(
+			"name" => $db->escape_string($setting['name']),
+			"title" => $db->escape_string($setting['title']),
+			"description" => $db->escape_string($setting['description']),
+			"optionscode" => $db->escape_string($setting['optionscode']),
+			"value" => $db->escape_string($setting['value']),
+			"disporder" => intval($i),
+			"gid" => intval($gid),
+		);
+		$db->insert_query("settings", $insert);
+		$i++;
+	}
+	
+	rebuild_settings();
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
@@ -202,6 +254,18 @@ function myreactions_activate()
 function myreactions_deactivate()
 {
 	global $mybb, $db;
+	
+	$db->delete_query("settinggroups", "name = 'myreactions'");
+	
+	$settings = array(
+		"myreactions_type",
+		"myreactions_multiple",
+		"myreactions_profile"
+	);
+	$settings = "'" . implode("','", $settings) . "'";
+	$db->delete_query("settings", "name IN ({$settings})");
+	
+	rebuild_settings();
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
