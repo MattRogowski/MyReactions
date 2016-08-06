@@ -272,7 +272,7 @@ function myreactions_deactivate()
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image')");
+	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_recent')");
 }
 
 function myreactions_cache()
@@ -290,7 +290,7 @@ function myreactions_cache()
 
 function myreactions_postbit(&$post)
 {
-	global $lang, $cache, $templates;
+	global $mybb, $lang, $cache, $templates;
 
 	$all_reactions = $cache->read('myreactions');
 	$lang->load('myreactions');
@@ -301,9 +301,9 @@ function myreactions_postbit(&$post)
 	$sizes = array(16,20,24,28,32);
 	$size = $sizes[0];
 
-	switch($type)
+	switch($mybb->settings['myreactions_type'])
 	{
-		case 0:
+		case 'linear':
 			$reactions = '';
 			for($i = 1; $i <= $number; $i++)
 			{
@@ -312,14 +312,17 @@ function myreactions_postbit(&$post)
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 
-			$reaction = array('reaction_path' => 'images/reactions/plus.png');
-			$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
-			$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
-			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
+			if(true||$post['uid'] != $mybb->user['uid'])
+			{
+				$reaction = array('reaction_path' => 'images/reactions/plus.png');
+				$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
+				$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
+				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
+			}
 
 			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			break;
-		case 1:
+		case 'grouped':
 			$post_reactions = '';
 			for($i = 1; $i <= $number; $i++)
 			{
@@ -330,24 +333,26 @@ function myreactions_postbit(&$post)
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			$reaction = array('reaction_path' => 'images/reactions/plus.png');
-			$count = $lang->myreactions_add;
-			eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
-			$class = ' reaction-add';
-			if(!$number)
+			if(true||$post['uid'] != $mybb->user['uid'])
 			{
-				$class .= ' reaction-add-force';
+				$reaction = array('reaction_path' => 'images/reactions/plus.png');
+				$count = $lang->myreactions_add;
+				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+				$class = ' reaction-add'.(!$number?' reaction-add-force':'');
+				$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
+				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
-			$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
-			eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			break;
 	}
 
-	$reacted_with = $lang->myreactions_you_reacted_with;
-	$reaction = $all_reactions[$k];
-	$class = $onclick = '';
-	$remove = ' ('.$lang->myreactions_remove.')';
-	eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+	if($number)
+	{
+		$reacted_with = $lang->myreactions_you_reacted_with;
+		$reaction = $all_reactions[$k];
+		$class = $onclick = '';
+		$remove = ' ('.$lang->myreactions_remove.')';
+		eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+	}
 
 	eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 }
@@ -429,7 +434,7 @@ function myreactions_react()
 .myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force {
   display: inline-block;
 }
-.myreactions-reaction.reaction-add span, .myreactions-reactions .reaction-add + span {
+.myreactions-reaction.reaction-add span, .myreactions-reactions .reaction-add + span, .myreactions-reactions > span {
   display: none;
 }
 .myreactions-reactions .reaction-add + span {
@@ -528,4 +533,5 @@ function myreactions_react()
 }
 .reaction-add, .myreactions-react img {
 	cursor: pointer;
+}
 */
