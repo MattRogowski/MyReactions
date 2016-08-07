@@ -32,6 +32,9 @@ $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
 $plugins->add_hook('misc_start', 'myreactions_react');
 $plugins->add_hook('member_profile_end', 'myreactions_profile');
+$plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
+$plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
+$plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
 
 function myreactions_info()
 {
@@ -88,6 +91,8 @@ function myreactions_install()
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
 	}
 	myreactions_cache();
+
+	change_admin_permission("forum", "myreactions", 1);
 }
 
 function myreactions_is_installed()
@@ -635,6 +640,38 @@ function myreactions_by_post_and_user($pid, $uid)
 		$given_reactions[] = $rid;
 	}
 	return $given_reactions;
+}
+
+function myreactions_admin_forum_menu($sub_menu)
+{
+	global $lang;
+	
+	$lang->load("forum_myreactions");
+	
+	$sub_menu[] = array("id" => "myreactions", "title" => $lang->myreactions, "link" => "index.php?module=forum-myreactions");
+	
+	return $sub_menu;
+}
+
+function myreactions_admin_forum_action_handler($actions)
+{
+	$actions['myreactions'] = array(
+		"active" => "myreactions",
+		"file" => "myreactions.php"
+	);
+	
+	return $actions;
+}
+
+function myreactions_admin_forum_permissions($admin_permissions)
+{
+	global $lang;
+	
+	$lang->load("forum_myreactions");
+	
+	$admin_permissions['myreactions'] = $lang->can_manage_myreactions;
+	
+	return $admin_permissions;
 }
 
 /*
