@@ -308,7 +308,15 @@ function myreactions_showthread()
 {
 	global $mybb, $db, $thread_reactions;
 
-	$tid = intval($mybb->input['tid']);
+	if($mybb->input['pid'])
+	{
+		$post = get_post($mybb->input['pid']);
+		$tid = $post['tid'];
+	}
+	else
+	{
+		$tid = intval($mybb->input['tid']);
+	}
 
 	$reactions = $db->query('
 		SELECT '.TABLE_PREFIX.'post_reactions.*
@@ -328,6 +336,11 @@ function myreactions_postbit(&$post)
 {
 	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
+	if($mybb->input['action'] == 'do_myreactions')
+	{
+		myreactions_showthread();
+	}
+
 	$all_reactions = $cache->read('myreactions');
 	$lang->load('myreactions');
 
@@ -345,7 +358,6 @@ function myreactions_postbit(&$post)
 	}
 
 	$size = $mybb->settings['myreactions_size'];
-	$reacted = false;
 
 	switch($mybb->settings['myreactions_type'])
 	{
@@ -357,7 +369,7 @@ function myreactions_postbit(&$post)
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 
-			if($post['uid'] != $mybb->user['uid'])
+			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
 				$reaction = array('reaction_path' => 'images/reactions/plus.png');
 				$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
@@ -369,15 +381,24 @@ function myreactions_postbit(&$post)
 			break;
 		case 'grouped':
 			$post_reactions = '';
+			$grouped_reactions = array();
 			foreach($received_reactions as $received_reaction)
 			{
-				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
+				if(!array_key_exists($received_reaction['post_reaction_rid'], $grouped_reactions))
+				{
+					$grouped_reactions[$received_reaction['post_reaction_rid']] = 0;
+				}
+				$grouped_reactions[$received_reaction['post_reaction_rid']]++;
+			}
+			arsort($grouped_reactions);
+			foreach($grouped_reactions as $rid => $count)
+			{
+				$reaction = $all_reactions[$rid];
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
-				$count = rand(1, 100);
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			if($post['uid'] != $mybb->user['uid'])
+			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
 				$reaction = array('reaction_path' => 'images/reactions/plus.png');
 				$count = $lang->myreactions_add;
@@ -392,10 +413,13 @@ function myreactions_postbit(&$post)
 	if($reacted)
 	{
 		$reacted_with = $lang->myreactions_you_reacted_with;
-		$reaction = $all_reactions[$k];
-		$class = $onclick = '';
-		$remove = ' ('.$lang->myreactions_remove.')';
-		eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+		foreach($reacted as $r)
+		{
+			$reaction = $all_reactions[$r['post_reaction_rid']];
+			$class = $onclick = '';
+			$remove = ' ('.$lang->myreactions_remove.')';
+			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
+		}
 	}
 
 	eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
