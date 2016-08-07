@@ -434,6 +434,13 @@ function myreactions_react()
 		$all_reactions = $cache->read('myreactions');
 		$lang->load('myreactions');
 
+		$given_reactions = array();
+		$query = $db->simple_select('post_reactions', 'post_reaction_rid', 'post_reaction_pid = \''.$mybb->input['pid'].'\' and post_reaction_uid = \''.$mybb->user['uid'].'\'');
+		while($rid = $db->fetch_field($query, 'post_reaction_rid'))
+		{
+			$given_reactions[] = $rid;
+		}
+
 		$post = get_post($mybb->input['pid']);
 		$post_preview = $post['message'];
 		if(my_strlen($post['message']) > 100)
@@ -442,12 +449,6 @@ function myreactions_react()
 		}
 
 		$reactions = $favourite_reactions = '';
-
-		foreach($all_reactions as $reaction)
-		{
-			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
-			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
-		}
 		
 		$has_favourites = false;
 		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc'));
@@ -455,13 +456,35 @@ function myreactions_react()
 		{
 			$has_favourites = true;
 			$reaction = $all_reactions[$favourite_reaction['post_reaction_rid']];
-			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+			$class = $onclick = '';
+			if(in_array($favourite_reaction['post_reaction_rid'], $given_reactions))
+			{
+				$class = ' class="disabled"';
+			}
+			else
+			{
+				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+			}
 			eval("\$favourite_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 			
 		}
 		if($has_favourites)
 		{
 			eval("\$favourites = \"".$templates->get('myreactions_react_favourites', 1, 0)."\";");
+		}
+
+		foreach($all_reactions as $reaction)
+		{
+			$class = $onclick = '';
+			if(in_array($reaction['reaction_id'], $given_reactions))
+			{
+				$class = ' class="disabled"';
+			}
+			else
+			{
+				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+			}
+			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 		}
 
 		eval("\$myreactions = \"".$templates->get('myreactions_react', 1, 0)."\";");
@@ -602,5 +625,11 @@ function myreactions_react()
 }
 .reaction-add, .myreactions-react img {
 	cursor: pointer;
+}
+.myreactions-react img.disabled {
+	cursor: not-allowed;
+	opacity: 0.25;
+	-webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
 }
 */
