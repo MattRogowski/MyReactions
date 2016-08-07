@@ -224,7 +224,7 @@ linear=Linear",
 			<tr>
 				<td class=\"trow1\">{\$post_preview}</td>
 			</tr>
-			{\$recent}
+			{\$favourites}
 			<tr>
 				<td class=\"tcat\">{\$lang->myreactions_all}</td>
 			</tr>
@@ -238,13 +238,13 @@ linear=Linear",
 </div>"
 	);
 	$templates[] = array(
-		"title" => "myreactions_react_recent",
+		"title" => "myreactions_react_favourites",
 		"template" => "<tr>
-	<td class=\"tcat\">{\$lang->myreactions_recent}</td>
+	<td class=\"tcat\">{\$lang->myreactions_favourites}</td>
 </tr>
 <tr>
 	<td class=\"trow1\" align=\"left\">
-		{\$recent_reactions}
+		{\$favourite_reactions}
 	</td>
 </tr>"
 	);
@@ -288,7 +288,7 @@ function myreactions_deactivate()
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_recent')");
+	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_favourites')");
 }
 
 function myreactions_cache()
@@ -427,7 +427,7 @@ function myreactions_postbit(&$post)
 
 function myreactions_react()
 {
-	global $mybb, $lang, $cache, $templates, $theme;
+	global $mybb, $db, $lang, $cache, $templates, $theme;
 
 	if($mybb->input['action'] == 'myreactions')
 	{
@@ -441,7 +441,7 @@ function myreactions_react()
 			$post_preview = my_substr($post['message'], 0, 140).'...';
 		}
 
-		$reactions = $recent_reactions = '';
+		$reactions = $favourite_reactions = '';
 
 		foreach($all_reactions as $reaction)
 		{
@@ -449,18 +449,19 @@ function myreactions_react()
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 		}
 		
-		shuffle($all_reactions);
-		$number = rand(0, 10);
-		if($number)
+		$has_favourites = false;
+		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc'));
+		while($favourite_reaction = $db->fetch_array($query))
 		{
-			for($i = 1; $i <= $number; $i++)
-			{
-				$k = $i - 1;
-				$reaction = $all_reactions[$k];
-				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
-				eval("\$recent_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
-			}
-			eval("\$recent = \"".$templates->get('myreactions_react_recent', 1, 0)."\";");
+			$has_favourites = true;
+			$reaction = $all_reactions[$favourite_reaction['post_reaction_rid']];
+			$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+			eval("\$favourite_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			
+		}
+		if($has_favourites)
+		{
+			eval("\$favourites = \"".$templates->get('myreactions_react_favourites', 1, 0)."\";");
 		}
 
 		eval("\$myreactions = \"".$templates->get('myreactions_react', 1, 0)."\";");
