@@ -199,13 +199,14 @@ linear=Linear",
 		"template" => "<div style=\"clear:both\"></div>
 <div class=\"myreactions-container reactions-{\$size}\">
   {\$post_reactions}
+  <div style=\"clear:both\"></div>
   <div class=\"myreactions-reacted\">{\$reacted_with}</div>
 </div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_reactions",
 		"template" => "<div class=\"myreactions-reactions\">
-  {\$reactions}<span>{\$lang->myreactions_add}</span>
+  {\$reactions}
   <div style=\"clear:both\"></div>
 </div>"
 	);
@@ -217,7 +218,14 @@ linear=Linear",
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_image']}\"{\$class}{\$onclick} />{\$remove}"
+		"template" => "<img src=\"{\$mybb->settings['bburl']}/{\$reaction['reaction_image']}\"{\$class}{\$onclick} />{\$remove}"
+	);
+	$templates[] = array(
+		"title" => "myreactions_add",
+		"template" => "<div class=\"myreactions-reaction reaction-add{\$force}\" onclick=\"MyReactions.reactions('{\$post['pid']}');\">
+  <img src=\"{\$mybb->settings['bburl']}/images/reactions/plus.png\" /> <span>{\$lang->myreactions_add}</span>
+</div>
+<div style=\"clear:both\"></div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_react",
@@ -324,7 +332,7 @@ function myreactions_deactivate()
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_favourites','myreactions_profile')");
+	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile')");
 }
 
 function myreactions_cache()
@@ -398,6 +406,7 @@ function myreactions_postbit(&$post)
 	}
 
 	$size = $mybb->settings['myreactions_size'];
+	$post_reactions = '';
 
 	switch($mybb->settings['myreactions_type'])
 	{
@@ -409,19 +418,18 @@ function myreactions_postbit(&$post)
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
+			if($reactions)
+			{
+				eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
+			}
 
 			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
-				$reaction = array('reaction_image' => 'images/reactions/plus.png');
-				$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
-				$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
-				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
+				$force = (!$reactions?' reaction-add-force':'');
+				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
 			}
-
-			eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			break;
 		case 'grouped':
-			$post_reactions = '';
 			$grouped_reactions = array();
 			foreach($received_reactions as $received_reaction)
 			{
@@ -441,12 +449,8 @@ function myreactions_postbit(&$post)
 
 			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
-				$reaction = array('reaction_image' => 'images/reactions/plus.png');
-				$count = $lang->myreactions_add;
-				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
-				$class = ' reaction-add'.(!$number?' reaction-add-force':'');
-				$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
-				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
+				$force = (!$grouped_reactions?' reaction-add-force':'');
+				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
 			}
 			break;
 	}
@@ -675,7 +679,9 @@ function myreactions_admin_forum_permissions($admin_permissions)
 	return $admin_permissions;
 }
 
-/*
+function myreactions_css()
+{
+	return "
 .myreactions-container {
   padding: 10px;
   border-top: 1px solid #ccc;
@@ -684,41 +690,51 @@ function myreactions_admin_forum_permissions($admin_permissions)
 	padding: 0;
 	border: 0;
 }
-.myreactions-reaction {
-  display: inline-block;
-  margin: 2px;
-  padding: 5px;
-}
 .myreactions-reactions, .myreactions-reaction {
   background: #f5f5f5;
   border: 1px solid #ccc;
   display: inline-block;
   border-radius: 6px;
 }
+
+.myreactions-reaction {
+  display: inline-block;
+  margin: 2px;
+  padding: 5px;
+  float: left;
+}
+.myreactions-reactions {
+	float: left;
+	margin-right: 5px;
+}
 .myreactions-reaction span {
   float: right;
   margin-left: 5px;
-}
-.myreactions-reactions .reaction-add, .myreactions-reaction.reaction-add {
-  display: none;
-}
-.myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force {
-  display: inline-block;
-}
-.myreactions-reaction.reaction-add span, .myreactions-reactions .reaction-add + span, .myreactions-reactions > span {
-  display: none;
-}
-.myreactions-reactions .reaction-add + span {
-  margin-right: 5px;
-}
-.myreactions-reaction.reaction-add.reaction-add-force span, .myreactions-reactions .reaction-add.reaction-add-force + span {
-  display: inline;
 }
 .myreactions-reactions img {
   margin: 5px;
   float: left;
   display: inline-block;
 }
+
+/* Add Reaction */
+.reaction-add {
+  display: none;
+  margin: 0;
+  float: left;
+  cursor: pointer;
+}
+.reaction-add span {
+  display: none;	
+}
+.myreactions-reaction + .reaction-add {
+  margin: 2px;	
+}
+.myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
+  display: inline-block;
+}
+
+/* Reacted */
 .myreactions-container .myreactions-reacted img {
   position: relative;
 }
@@ -727,6 +743,24 @@ function myreactions_admin_forum_permissions($admin_permissions)
 	display: inline-block;
     margin-right: 5px;
 }
+
+/* Reaction Modal */
+.myreactions-react img {
+	width: 24px;
+	height: 24px;
+	padding: 5px;
+}
+.reaction-add, .myreactions-react img {
+	cursor: pointer;
+}
+.myreactions-react img.disabled {
+	cursor: not-allowed;
+	opacity: 0.25;
+	-webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+}
+
+/* Reaction image sizes */
 .myreactions-container.reactions-16 img {
   width: 16px;
   height: 16px;
@@ -802,18 +836,5 @@ function myreactions_admin_forum_permissions($admin_permissions)
 .myreactions-container.reactions-32 .myreactions-reacted img {
   top: 8px;
 }
-.myreactions-react img {
-	width: 24px;
-	height: 24px;
-	padding: 5px;
+	";
 }
-.reaction-add, .myreactions-react img {
-	cursor: pointer;
-}
-.myreactions-react img.disabled {
-	cursor: not-allowed;
-	opacity: 0.25;
-	-webkit-filter: grayscale(100%);
-    filter: grayscale(100%);
-}
-*/
