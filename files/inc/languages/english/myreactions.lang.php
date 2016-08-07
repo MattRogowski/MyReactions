@@ -22,4 +22,7 @@ $l['myreactions_remove'] = 'Remove';
 $l['myreactions_all'] = 'All Reactions';
 $l['myreactions_favourites'] = 'Favourite Reactions';
 $l['myreactions_you_reacted_with'] = 'You reacted with:';
+$l['myreactions_error_own_post'] = 'You cannot react to your own post';
+$l['myreactions_no_multiple'] = 'You have already reacted to this post';
+$l['myreactions_already_reacted'] = 'You have already reacted to this post with this reaction';
 ?>

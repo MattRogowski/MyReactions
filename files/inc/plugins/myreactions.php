@@ -434,14 +434,10 @@ function myreactions_react()
 		$all_reactions = $cache->read('myreactions');
 		$lang->load('myreactions');
 
-		$given_reactions = array();
-		$query = $db->simple_select('post_reactions', 'post_reaction_rid', 'post_reaction_pid = \''.$mybb->input['pid'].'\' and post_reaction_uid = \''.$mybb->user['uid'].'\'');
-		while($rid = $db->fetch_field($query, 'post_reaction_rid'))
-		{
-			$given_reactions[] = $rid;
-		}
-
 		$post = get_post($mybb->input['pid']);
+
+		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
+
 		$post_preview = $post['message'];
 		if(my_strlen($post['message']) > 100)
 		{
@@ -493,11 +489,44 @@ function myreactions_react()
 	}
 	elseif($mybb->input['action'] == 'do_myreactions')
 	{
+		$lang->load('myreactions');
+
 		$post = get_post($mybb->input['pid']);
+
+		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
+		
+		if($post['uid'] == $mybb->user['uid'])
+		{
+			error($lang->myreactions_error_own_post);
+		}
+		if(!empty($given_reactions) && !$mybb->settings['myreactions_multiple'])
+		{
+			error($lang->myreactions_no_multiple);
+		}
+		if(in_array($mybb->input['rid'], $given_reactions))
+		{
+			error($lang->myreactions_already_reacted);
+		}
+
+		$db->insert_query('post_reactions', array('post_reaction_pid' => $post['pid'], 'post_reaction_rid' => $mybb->input['rid'], 'post_reaction_uid' => $mybb->user['uid'], 'post_reaction_date' => TIME_NOW));
+
 		myreactions_postbit($post);
 		echo $post['myreactions'];
 		exit;
 	}
+}
+
+function myreactions_by_post_and_user($pid, $uid)
+{
+	global $db;
+
+	$given_reactions = array();
+	$query = $db->simple_select('post_reactions', 'post_reaction_rid', 'post_reaction_pid = \''.$pid.'\' and post_reaction_uid = \''.$uid.'\'');
+	while($rid = $db->fetch_field($query, 'post_reaction_rid'))
+	{
+		$given_reactions[] = $rid;
+	}
+	return $given_reactions;
 }
 
 /*
