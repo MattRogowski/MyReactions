@@ -304,7 +304,7 @@ function myreactions_cache()
 	$cache->update('myreactions', $myreactions);
 }
 
-function myreactions_showthread()
+function myreactions_showthread($post = null)
 {
 	global $mybb, $db, $thread_reactions;
 
@@ -313,9 +313,13 @@ function myreactions_showthread()
 		$post = get_post($mybb->input['pid']);
 		$tid = $post['tid'];
 	}
-	else
+	elseif($mybb->input['tid'])
 	{
 		$tid = intval($mybb->input['tid']);
+	}
+	elseif($post)
+	{
+		$tid = $post['tid'];
 	}
 
 	$reactions = $db->query('
@@ -336,9 +340,9 @@ function myreactions_postbit(&$post)
 {
 	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
-	if($mybb->input['action'] == 'do_myreactions')
+	if(in_array($mybb->input['action'], array('myreactions_react','myreactions_remove')))
 	{
-		myreactions_showthread();
+		myreactions_showthread($post);
 	}
 
 	$all_reactions = $cache->read('myreactions');
@@ -417,7 +421,7 @@ function myreactions_postbit(&$post)
 		{
 			$reaction = $all_reactions[$r['post_reaction_rid']];
 			$class = $onclick = '';
-			$remove = ' ('.$lang->myreactions_remove.')';
+			$remove = ' <span onclick="MyReactions.remove('.$r['post_reaction_rid'].','.$r['post_reaction_pid'].');">('.$lang->myreactions_remove.')</span>';
 			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
 		}
 	}
@@ -490,7 +494,7 @@ function myreactions_react()
 		echo $myreactions;
 		exit;
 	}
-	elseif($mybb->input['action'] == 'do_myreactions')
+	elseif($mybb->input['action'] == 'myreactions_react')
 	{
 		$lang->load('myreactions');
 
@@ -516,6 +520,19 @@ function myreactions_react()
 		myreactions_postbit($post);
 		echo $post['myreactions'];
 		exit;
+	}
+	elseif($mybb->input['action'] == 'myreactions_remove')
+	{
+		$query = $db->simple_select('post_reactions', '*', 'post_reaction_pid = \''.$mybb->input['pid'].'\' and post_reaction_rid = \''.$mybb->input['rid'].'\' and post_reaction_uid = \''.$mybb->user['uid'].'\'');
+		$post_reaction = $db->fetch_array($query);
+		if($post_reaction)
+		{
+			$db->delete_query('post_reactions', 'post_reaction_id = \''.$post_reaction['post_reaction_id'].'\'');
+			$post = get_post($post_reaction['post_reaction_pid']);
+			myreactions_postbit($post);
+			echo $post['myreactions'];
+			exit;
+		}
 	}
 }
 
@@ -574,6 +591,11 @@ function myreactions_by_post_and_user($pid, $uid)
 }
 .myreactions-container .myreactions-reacted img {
   position: relative;
+}
+.myreactions-container .myreactions-reacted img + span {
+	cursor: pointer;
+	display: inline-block;
+    margin-right: 5px;
 }
 .myreactions-container.reactions-16 img {
   width: 16px;
