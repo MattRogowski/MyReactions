@@ -31,6 +31,7 @@ if(!defined("IN_MYBB"))
 $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
 $plugins->add_hook('misc_start', 'myreactions_react');
+$plugins->add_hook('member_profile_end', 'myreactions_profile');
 
 function myreactions_info()
 {
@@ -186,6 +187,7 @@ linear=Linear",
 
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
+	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
 	
 	$templates = array();
 	$templates[] = array(
@@ -248,6 +250,35 @@ linear=Linear",
 	</td>
 </tr>"
 	);
+	$templates[] = array(
+		"title" => "myreactions_profile",
+		"template" => "<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" class=\"tborder\">
+	<tr>
+		<td class=\"thead\"><strong>{\$lang->myreactions_profile_header}</strong></td>
+	</tr>
+	<tr>
+		<td class=\"tcat\">{\$lang->myreactions_profile_received}</td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" align=\"left\">
+			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size}\">
+				{\$reactions_received}
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td class=\"tcat\">{\$lang->myreactions_profile_given}</td>
+	</tr>
+	<tr>
+		<td class=\"trow1\" align=\"left\">
+			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size}\">
+				{\$reactions_given}
+			</div>
+		</td>
+	</tr>
+</table>
+<br />"
+	);
 	
 	foreach($templates as $template)
 	{
@@ -287,8 +318,9 @@ function myreactions_deactivate()
 
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
+	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_favourites')");
+	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_react','myreactions_react_favourites','myreactions_profile')");
 }
 
 function myreactions_cache()
@@ -536,6 +568,62 @@ function myreactions_react()
 	}
 }
 
+function myreactions_profile()
+{
+	global $mybb, $db, $lang, $templates, $theme, $memprofile, $myreactions;
+
+	if(!$mybb->settings['myreactions_profile'])
+	{
+		return;
+	}
+
+	$lang->load('myreactions');
+
+	$reactions_received = $reactions_given = '';
+	$size = $mybb->settings['myreactions_size'];
+
+	$received_query = $db->query('
+		SELECT '.TABLE_PREFIX.'myreactions.*, count(post_reaction_id) as count
+		FROM '.TABLE_PREFIX.'myreactions
+		JOIN '.TABLE_PREFIX.'post_reactions ON post_reaction_rid = reaction_id
+		JOIN '.TABLE_PREFIX.'posts ON pid = post_reaction_pid AND '.TABLE_PREFIX.'posts.uid = \''.$memprofile['uid'].'\'
+		GROUP BY reaction_id
+		ORDER BY count DESC
+		LIMIT 10
+	');
+	while($reaction = $db->fetch_array($received_query))
+	{
+		$count = $reaction['count'];
+		eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+		eval("\$reactions_received .= \"".$templates->get('myreactions_reaction')."\";");
+	}
+	if(!$reactions_received)
+	{
+		$reactions_received = $lang->myreactions_profile_none;
+	}
+
+	$given_query = $db->query('
+		SELECT mybb_myreactions.*, count(post_reaction_id) as count
+		FROM mybb_myreactions
+		JOIN mybb_post_reactions ON post_reaction_rid = reaction_id AND post_reaction_uid = \''.$memprofile['uid'].'\'
+		GROUP BY reaction_id
+		ORDER BY count DESC
+		LIMIT 10
+	');
+	while($reaction = $db->fetch_array($given_query))
+	{
+		$count = $reaction['count'];
+		eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+		eval("\$reactions_given .= \"".$templates->get('myreactions_reaction')."\";");
+	}
+	if(!$reactions_given)
+	{
+		$reactions_given = $lang->myreactions_profile_none;
+	}
+
+	eval("\$myreactions = \"".$templates->get('myreactions_profile', 1, 0)."\";");
+}
+
 function myreactions_by_post_and_user($pid, $uid)
 {
 	global $db;
@@ -553,6 +641,10 @@ function myreactions_by_post_and_user($pid, $uid)
 .myreactions-container {
   padding: 10px;
   border-top: 1px solid #ccc;
+}
+.myreactions-container.myreactions-profile-container {
+	padding: 0;
+	border: 0;
 }
 .myreactions-reaction {
   display: inline-block;
