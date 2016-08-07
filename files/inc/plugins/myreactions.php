@@ -212,13 +212,13 @@ linear=Linear",
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction",
-		"template" => "<div class=\"myreactions-reaction{\$class}\"{\$onclick}>
+		"template" => "<div class=\"myreactions-reaction{\$class}\"{\$onclick}{\$title}>
   {\$reaction_image} <span>{\$count}</span>
 </div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"{\$mybb->settings['bburl']}/{\$reaction['reaction_image']}\"{\$class}{\$onclick} />{\$remove}"
+		"template" => "<img src=\"{\$mybb->settings['bburl']}/{\$reaction['reaction_image']}\"{\$class}{\$onclick}{\$title} />{\$remove}"
 	);
 	$templates[] = array(
 		"title" => "myreactions_add",
@@ -367,9 +367,11 @@ function myreactions_showthread($post = null)
 	}
 
 	$reactions = $db->query('
-		SELECT '.TABLE_PREFIX.'post_reactions.*
-		FROM '.TABLE_PREFIX.'post_reactions
+		SELECT pr.*, mr.reaction_name, u.username
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'myreactions mr ON (reaction_id = post_reaction_rid)
 		JOIN '.TABLE_PREFIX.'posts ON (pid = post_reaction_pid)
+		JOIN '.TABLE_PREFIX.'users u on (u.uid = post_reaction_uid)
 		WHERE tid = \''.$tid.'\'
 		ORDER BY post_reaction_date DESC
 	');
@@ -416,6 +418,7 @@ function myreactions_postbit(&$post)
 			foreach($received_reactions as $received_reaction)
 			{
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
+				$title = ' title="'.$received_reaction['reaction_name'].' - '.$received_reaction['username'].'"';
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 			if($reactions)
@@ -435,14 +438,20 @@ function myreactions_postbit(&$post)
 			{
 				if(!array_key_exists($received_reaction['post_reaction_rid'], $grouped_reactions))
 				{
-					$grouped_reactions[$received_reaction['post_reaction_rid']] = 0;
+					$grouped_reactions[$received_reaction['post_reaction_rid']] = array('name' => '', 'count' => 0, 'users' => array());
 				}
-				$grouped_reactions[$received_reaction['post_reaction_rid']]++;
+				$grouped_reactions[$received_reaction['post_reaction_rid']]['name'] = $received_reaction['reaction_name'];
+				$grouped_reactions[$received_reaction['post_reaction_rid']]['count']++;
+				$grouped_reactions[$received_reaction['post_reaction_rid']]['users'][] = $received_reaction['username'];
 			}
-			arsort($grouped_reactions);
-			foreach($grouped_reactions as $rid => $count)
+			uasort($grouped_reactions, function($a, $b) {
+				return $a['count'] < $b['count'];
+			});
+			foreach($grouped_reactions as $rid => $info)
 			{
 				$reaction = $all_reactions[$rid];
+				$count = $info['count'];
+				$title = ' title="'.$info['name'].' - '.implode(', ', $info['users']).'"';
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
