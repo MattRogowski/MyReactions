@@ -61,7 +61,7 @@ function myreactions_install()
 		$db->write_query('CREATE TABLE `'.TABLE_PREFIX.'myreactions` (
 		  `reaction_id` int(11) NOT NULL AUTO_INCREMENT,
 		  `reaction_name` varchar(255) NOT NULL,
-		  `reaction_path` varchar(255) NOT NULL,
+		  `reaction_image` varchar(255) NOT NULL,
 		  PRIMARY KEY (`reaction_id`)
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
 
@@ -71,7 +71,7 @@ function myreactions_install()
 		{
 			$insert = array(
 				'reaction_name' => ucwords(str_replace('_', ' ', $reaction)),
-				'reaction_path' => 'images/reactions/'.$reaction.'.png'
+				'reaction_image' => 'images/reactions/'.$reaction.'.png'
 			);
 			$db->insert_query('myreactions', $insert);
 		}
@@ -90,7 +90,6 @@ function myreactions_install()
 		  KEY `post_reaction_uid` (`post_reaction_uid`)
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
 	}
-	myreactions_cache();
 
 	change_admin_permission("forum", "myreactions", 1);
 }
@@ -218,7 +217,7 @@ linear=Linear",
 	);
 	$templates[] = array(
 		"title" => "myreactions_reaction_image",
-		"template" => "<img src=\"/{\$reaction['reaction_path']}\"{\$class}{\$onclick} />{\$remove}"
+		"template" => "<img src=\"/{\$reaction['reaction_image']}\"{\$class}{\$onclick} />{\$remove}"
 	);
 	$templates[] = array(
 		"title" => "myreactions_react",
@@ -413,7 +412,7 @@ function myreactions_postbit(&$post)
 
 			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
-				$reaction = array('reaction_path' => 'images/reactions/plus.png');
+				$reaction = array('reaction_image' => 'images/reactions/plus.png');
 				$class = ' class="reaction-add'.(!$number?' reaction-add-force':'').'"';
 				$onclick = ' onclick="MyReactions.reactions('.$post['pid'].');"';
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
@@ -442,7 +441,7 @@ function myreactions_postbit(&$post)
 
 			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
-				$reaction = array('reaction_path' => 'images/reactions/plus.png');
+				$reaction = array('reaction_image' => 'images/reactions/plus.png');
 				$count = $lang->myreactions_add;
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 				$class = ' reaction-add'.(!$number?' reaction-add-force':'');
