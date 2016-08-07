@@ -364,7 +364,7 @@ function myreactions_showthread($post = null)
 		FROM '.TABLE_PREFIX.'post_reactions
 		JOIN '.TABLE_PREFIX.'posts ON (pid = post_reaction_pid)
 		WHERE tid = \''.$tid.'\'
-		ORDER BY post_reaction_date ASC
+		ORDER BY post_reaction_date DESC
 	');
 	$thread_reactions = array();
 	while($reaction = $db->fetch_array($reactions))
@@ -403,6 +403,7 @@ function myreactions_postbit(&$post)
 	switch($mybb->settings['myreactions_type'])
 	{
 		case 'linear':
+			krsort($received_reactions);
 			$reactions = '';
 			foreach($received_reactions as $received_reaction)
 			{
@@ -453,6 +454,7 @@ function myreactions_postbit(&$post)
 
 	if($reacted)
 	{
+		krsort($reacted);
 		$reacted_with = $lang->myreactions_you_reacted_with;
 		foreach($reacted as $r)
 		{
