@@ -422,7 +422,10 @@ function myreactions_postbit(&$post)
 		}
 	}
 
-	eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+	if($post_reactions)
+	{
+		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
+	}
 }
 
 function myreactions_react()
