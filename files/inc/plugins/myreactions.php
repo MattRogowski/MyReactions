@@ -486,7 +486,7 @@ function myreactions_react()
 		$reactions = $favourite_reactions = '';
 		
 		$has_favourites = false;
-		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc'));
+		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc', 'limit' => 10));
 		while($favourite_reaction = $db->fetch_array($query))
 		{
 			$has_favourites = true;
