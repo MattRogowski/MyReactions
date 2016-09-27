@@ -549,6 +549,8 @@ function myreactions_react()
 	}
 	elseif($mybb->input['action'] == 'myreactions_react')
 	{
+		verify_post_check($mybb->input['my_post_key']);
+
 		$lang->load('myreactions');
 
 		$post = get_post($mybb->input['pid']);
@@ -576,6 +578,8 @@ function myreactions_react()
 	}
 	elseif($mybb->input['action'] == 'myreactions_remove')
 	{
+		verify_post_check($mybb->input['my_post_key']);
+		
 		$query = $db->simple_select('post_reactions', '*', 'post_reaction_pid = \''.$mybb->input['pid'].'\' and post_reaction_rid = \''.$mybb->input['rid'].'\' and post_reaction_uid = \''.$mybb->user['uid'].'\'');
 		$post_reaction = $db->fetch_array($query);
 		if($post_reaction)
