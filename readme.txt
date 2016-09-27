@@ -3,7 +3,7 @@ Description: Add emoji reactions to posts
 Website: https://github.com/MattRogowski/MyReactions
 Author: Matt Rogowski
 Authorsite: https://matt.rogow.ski
-Version: 0.0.1
+Version: 0.0.2
 Compatibility: 1.8.x
 Files: 5
 Templates added: 8
@@ -33,6 +33,7 @@ Go to ACP > Forums & Posts > MyReactions to manage
 
 Change Log:
 27/11/16 - v0.0.1 -> Initial 'beta' release.
+27/11/16 - v0.0.1 -> v0.0.2 -> Fixes issue with forums in subdirectories, and fixes CSRF issue with adding and removing reactions. To upgrade, reupload ./inc/plugins/myreactions.php and ./jscripts/myreactions.js. Thanks to Devilshakerz for the CSRF tip (and my bad for forgetting to do it in the first place)
 
 Copyright 2016 Matthew Rogowski
 
