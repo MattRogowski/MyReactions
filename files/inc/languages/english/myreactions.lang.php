@@ -1,6 +1,6 @@
 <?php
 /**
- * MyReactions 0.1 - Language File
+ * MyReactions 0.0.1 - Language File
 
  * Copyright 2016 Matthew Rogowski
 

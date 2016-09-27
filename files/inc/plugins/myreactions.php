@@ -1,6 +1,6 @@
 <?php
 /**
- * MyReactions 0.1
+ * MyReactions 0.0.1
 
  * Copyright 2016 Matthew Rogowski
 
@@ -44,9 +44,9 @@ function myreactions_info()
 		"website" => "https://github.com/MattRogowski/MyReactions",
 		"author" => "Matt Rogowski",
 		"authorsite" => "https://matt.rogow.ski",
-		"version" => "0.1",
+		"version" => "0.0.1",
 		"compatibility" => "18*",
-		"guid" => ""
+		"codename" => "myreactions"
 	);
 }
 
@@ -189,6 +189,7 @@ linear=Linear",
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
+	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=001"></script>'."\n".'</head>');
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
@@ -327,7 +328,8 @@ function myreactions_deactivate()
 	rebuild_settings();
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
-
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\n".'</head>')."#i", '</head>', 0);
+	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
@@ -686,164 +688,4 @@ function myreactions_admin_forum_permissions($admin_permissions)
 	$admin_permissions['myreactions'] = $lang->can_manage_myreactions;
 	
 	return $admin_permissions;
-}
-
-function myreactions_css()
-{
-	return "
-.myreactions-container {
-  padding: 10px;
-  border-top: 1px solid #ccc;
-}
-.myreactions-container.myreactions-profile-container {
-	padding: 0;
-	border: 0;
-}
-.myreactions-reactions, .myreactions-reaction {
-  background: #f5f5f5;
-  border: 1px solid #ccc;
-  display: inline-block;
-  border-radius: 6px;
-}
-
-.myreactions-reaction {
-  display: inline-block;
-  margin: 2px;
-  padding: 5px;
-  float: left;
-}
-.myreactions-reactions {
-	float: left;
-	margin-right: 5px;
-}
-.myreactions-reaction span {
-  float: right;
-  margin-left: 5px;
-}
-.myreactions-reactions img {
-  margin: 5px;
-  float: left;
-  display: inline-block;
-}
-
-/* Add Reaction */
-.reaction-add {
-  display: none;
-  margin: 0;
-  float: left;
-  cursor: pointer;
-}
-.reaction-add span {
-  display: none;	
-}
-.myreactions-reaction + .reaction-add {
-  margin: 2px;	
-}
-.myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
-  display: inline-block;
-}
-
-/* Reacted */
-.myreactions-container .myreactions-reacted img {
-  position: relative;
-}
-.myreactions-container .myreactions-reacted img + span {
-	cursor: pointer;
-	display: inline-block;
-    margin-right: 5px;
-}
-
-/* Reaction Modal */
-.myreactions-react img {
-	width: 24px;
-	height: 24px;
-	padding: 5px;
-}
-.reaction-add, .myreactions-react img {
-	cursor: pointer;
-}
-.myreactions-react img.disabled {
-	cursor: not-allowed;
-	opacity: 0.25;
-	-webkit-filter: grayscale(100%);
-    filter: grayscale(100%);
-}
-
-/* Reaction image sizes */
-.myreactions-container.reactions-16 img {
-  width: 16px;
-  height: 16px;
-}
-.myreactions-container.reactions-16 .myreactions-reaction span, .myreactions-container.reactions-16 .myreactions-reacted {
-  font-size: 12px;
-  line-height: 16px;
-}
-.myreactions-container.reactions-16 .myreactions-reactions .reaction-add + span {
-  font-size: 12px;
-  line-height: 26px;
-}
-.myreactions-container.reactions-16 .myreactions-reacted img {
-  top: 4px;
-}
-.myreactions-container.reactions-20 img {
-  width: 20px;
-  height: 20px;
-}
-.myreactions-container.reactions-20 .myreactions-reaction span, .myreactions-container.reactions-20 .myreactions-reacted {
-  font-size: 13px;
-  line-height: 20px;
-}
-.myreactions-container.reactions-20 .myreactions-reactions .reaction-add + span {
-  font-size: 13px;
-  line-height: 30px;
-}
-.myreactions-container.reactions-20 .myreactions-reacted img {
-  top: 6px;
-}
-.myreactions-container.reactions-24 img {
-  width: 24px;
-  height: 24px;
-}
-.myreactions-container.reactions-24 .myreactions-reaction span, .myreactions-container.reactions-24 .myreactions-reacted {
-  font-size: 14px;
-  line-height: 24px;
-}
-.myreactions-container.reactions-24 .myreactions-reactions .reaction-add + span {
-  font-size: 14px;
-  line-height: 34px;
-}
-.myreactions-container.reactions-24 .myreactions-reacted img {
-  top: 7px;
-}
-.myreactions-container.reactions-28 img {
-  width: 28px;
-  height: 28px;
-}
-.myreactions-container.reactions-28 .myreactions-reaction span, .myreactions-container.reactions-28 .myreactions-reacted {
-  font-size: 15px;
-  line-height: 28px;
-}
-.myreactions-container.reactions-28 .myreactions-reactions .reaction-add + span {
-  font-size: 15px;
-  line-height: 38px;
-}
-.myreactions-container.reactions-28 .myreactions-reacted img {
-  top: 7px;
-}
-.myreactions-container.reactions-32 img {
-  width: 32px;
-  height: 32px;
-}
-.myreactions-container.reactions-32 .myreactions-reaction span, .myreactions-container.reactions-32 .myreactions-reacted {
-  font-size: 16px;
-  line-height: 32px;
-}
-.myreactions-container.reactions-32 .myreactions-reactions .reaction-add + span {
-  font-size: 16px;
-  line-height: 42px;
-}
-.myreactions-container.reactions-32 .myreactions-reacted img {
-  top: 8px;
-}
-	";
 }
