@@ -26,6 +26,7 @@ Upload ./inc/languages/english/myreactions.lang.php to ./inc/languages/english/
 Upload ./admin/modules/forum/myreactions.php to ./admin/modules/forum/
 Upload ./inc/languages/english/admin/forum_myreactions.lang.php to ./inc/languages/english/admin/
 Upload ./jscripts/myreactions.js to ./jscripts/
+Upload ./images/reactions/ and its contents to ./images/
 Go to ACP > Templates & Style > **choose theme** > Add Stylesheet > enter 'myreactions.css' (without quotes) into 'File Name', select 'Write my own content', paste the content of ./myreactions.css into the editor, and save.
 Go to ACP > Plugins > Activate
 Go to ACP > Forums & Posts > MyReactions to manage
