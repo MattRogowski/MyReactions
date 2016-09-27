@@ -14,7 +14,7 @@ Tables added: 2
 Information:
 This plugin allows you to add emoji reactions to user's posts.
 
-Choose whether to gorup the reactions and display a count, or display them in a linear order of when they were received.
+Choose whether to group the reactions and display a count, or display them in a linear order of when they were received.
 
 You can also view the most given and received reactions on user profiles.
 
