@@ -1,6 +1,6 @@
 <?php
 /**
- * MyReactions 0.0.1
+ * MyReactions 0.0.2
 
  * Copyright 2016 Matthew Rogowski
 
@@ -44,7 +44,7 @@ function myreactions_info()
 		"website" => "https://github.com/MattRogowski/MyReactions",
 		"author" => "Matt Rogowski",
 		"authorsite" => "https://matt.rogow.ski",
-		"version" => "0.0.1",
+		"version" => "0.0.2",
 		"compatibility" => "18*",
 		"codename" => "myreactions"
 	);
@@ -189,7 +189,9 @@ linear=Linear",
 	
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
-	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=001"></script>'."\n".'</head>');
+	$myreactions_info = myreactions_info();
+
+	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver='.preg_replace('/[^0-9]/', '', $myreactions_info['version']).'"></script>'."\n".'</head>');
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
@@ -579,7 +581,7 @@ function myreactions_react()
 	elseif($mybb->input['action'] == 'myreactions_remove')
 	{
 		verify_post_check($mybb->input['my_post_key']);
-		
+
 		$query = $db->simple_select('post_reactions', '*', 'post_reaction_pid = \''.$mybb->input['pid'].'\' and post_reaction_rid = \''.$mybb->input['rid'].'\' and post_reaction_uid = \''.$mybb->user['uid'].'\'');
 		$post_reaction = $db->fetch_array($query);
 		if($post_reaction)
