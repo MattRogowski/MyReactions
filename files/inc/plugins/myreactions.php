@@ -430,7 +430,7 @@ function myreactions_postbit(&$post)
 				eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			}
 
-			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
+			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
 				$force = (!$reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
@@ -460,7 +460,7 @@ function myreactions_postbit(&$post)
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			if($post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
+			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
 			{
 				$force = (!$grouped_reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
