@@ -398,7 +398,7 @@ function myreactions_postbit(&$post)
 	$all_reactions = $cache->read('myreactions');
 	$lang->load('myreactions');
 
-	$received_reactions = $reacted = array();
+	$received_reactions = $reacted_ids = $reacted_reactions = array();
 	if(array_key_exists($post['pid'], $thread_reactions))
 	{
 		$received_reactions = $thread_reactions[$post['pid']];
@@ -406,7 +406,8 @@ function myreactions_postbit(&$post)
 		{
 			if($reaction['post_reaction_uid'] == $mybb->user['uid'])
 			{
-				$reacted[] = $reaction;
+				$reacted_ids[] = $reaction['post_reaction_id'];
+				$reacted_reactions[] = $reaction['post_reaction_rid'];
 			}
 		}
 	}
@@ -421,7 +422,13 @@ function myreactions_postbit(&$post)
 			$reactions = '';
 			foreach($received_reactions as $received_reaction)
 			{
+				$class = $onclick = '';
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
+				if(in_array($received_reaction['post_reaction_id'], $reacted_ids))
+				{
+					$class = ' class="myreactions-reacted"';
+					$onclick = ' onclick="MyReactions.remove('.$received_reaction['post_reaction_rid'].','.$post['pid'].');"';
+				}
 				$title = ' title="'.$received_reaction['reaction_name'].' - '.$received_reaction['username'].'"';
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
@@ -430,7 +437,7 @@ function myreactions_postbit(&$post)
 				eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			}
 
-			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
+			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted_ids && !$mybb->settings['myreactions_multiple']))
 			{
 				$force = (!$reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
@@ -456,29 +463,22 @@ function myreactions_postbit(&$post)
 				$reaction = $all_reactions[$rid];
 				$count = $info['count'];
 				$title = ' title="'.$info['name'].' - '.implode(', ', $info['users']).'"';
+				$class = $onclick = '';
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+				if(in_array($rid, $reacted_reactions))
+				{
+					$class = ' myreactions-reacted';
+					$onclick = ' onclick="MyReactions.remove('.$rid.','.$post['pid'].');"';
+				}
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted && !$mybb->settings['myreactions_multiple']))
+			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted_ids && !$mybb->settings['myreactions_multiple']))
 			{
 				$force = (!$grouped_reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
 			}
 			break;
-	}
-
-	if($reacted)
-	{
-		krsort($reacted);
-		$reacted_with = $lang->myreactions_you_reacted_with;
-		foreach($reacted as $r)
-		{
-			$reaction = $all_reactions[$r['post_reaction_rid']];
-			$class = $onclick = '';
-			$remove = ' <span onclick="MyReactions.remove('.$r['post_reaction_rid'].','.$r['post_reaction_pid'].');">('.$lang->myreactions_remove.')</span>';
-			eval("\$reacted_with .= \"".$templates->get('myreactions_reaction_image')."\";");
-		}
 	}
 
 	if($post_reactions)
