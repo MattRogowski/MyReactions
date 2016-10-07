@@ -1,6 +1,6 @@
 <?php
 /**
- * MyReactions 0.0.2
+ * MyReactions 0.0.3
 
  * Copyright 2016 Matthew Rogowski
 
@@ -44,7 +44,7 @@ function myreactions_info()
 		"website" => "https://github.com/MattRogowski/MyReactions",
 		"author" => "Matt Rogowski",
 		"authorsite" => "https://matt.rogow.ski",
-		"version" => "0.0.2",
+		"version" => "0.0.3",
 		"compatibility" => "18*",
 		"codename" => "myreactions"
 	);

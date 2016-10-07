@@ -1,6 +1,6 @@
 <?php
 /**
- * MyReactions 0.0.2 - Admin File
+ * MyReactions 0.0.3 - Admin File
 
  * Copyright 2010 Matthew Rogowski
 
