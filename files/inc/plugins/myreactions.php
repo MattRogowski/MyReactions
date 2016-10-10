@@ -630,9 +630,9 @@ function myreactions_profile()
 	}
 
 	$given_query = $db->query('
-		SELECT mybb_myreactions.*, count(post_reaction_id) as count
-		FROM mybb_myreactions
-		JOIN mybb_post_reactions ON post_reaction_rid = reaction_id AND post_reaction_uid = \''.$memprofile['uid'].'\'
+		SELECT '.TABLE_PREFIX.'myreactions.*, count(post_reaction_id) as count
+		FROM '.TABLE_PREFIX.'myreactions
+		JOIN '.TABLE_PREFIX.'post_reactions ON post_reaction_rid = reaction_id AND post_reaction_uid = \''.$memprofile['uid'].'\'
 		GROUP BY reaction_id
 		ORDER BY count DESC
 		LIMIT 10
