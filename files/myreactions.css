@@ -49,10 +49,10 @@
 .myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
   display: inline-block;
 }
-.myreactions-container:hover .myreactions-reactions > img, .myreactions-container:hover .myreactions-reaction {
+.myreactions-container.myreactions-post:hover .myreactions-reactions > img, .myreactions-container.myreactions-post:hover .myreactions-reaction {
   opacity: 0.25;  
 }
-.myreactions-container:hover .myreactions-reactions > img.myreactions-reacted, .myreactions-container:hover .myreactions-reaction.myreactions-reacted, .myreactions-container:hover .reaction-add {
+.myreactions-container.myreactions-post:hover .myreactions-reactions > img.myreactions-reacted, .myreactions-container.myreactions-post:hover .myreactions-reaction.myreactions-reacted, .myreactions-container.myreactions-post:hover .reaction-add {
   opacity: 1;
   cursor: pointer;
 }

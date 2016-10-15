@@ -200,7 +200,7 @@ linear=Linear",
 	$templates[] = array(
 		"title" => "myreactions_container",
 		"template" => "<div style=\"clear:both\"></div>
-<div class=\"myreactions-container reactions-{\$size}\">
+<div class=\"myreactions-container reactions-{\$size} myreactions-post\">
   {\$post_reactions}
   <div style=\"clear:both\"></div>
   <div class=\"myreactions-reacted\">{\$reacted_with}</div>
@@ -276,7 +276,7 @@ linear=Linear",
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
-			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size}\">
+			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size} myreactions-profile\">
 				{\$reactions_received}
 			</div>
 		</td>
@@ -286,7 +286,7 @@ linear=Linear",
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
-			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size}\">
+			<div class=\"myreactions-container myreactions-profile-container reactions-{\$size} myreactions-profile\">
 				{\$reactions_given}
 			</div>
 		</td>
