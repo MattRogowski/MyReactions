@@ -301,7 +301,7 @@ linear=Linear",
 		<td class=\"thead\"><strong>{\$lang->myreactions_profile_header}</strong></td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_received}<span class=\"float_right\">{\$lang->myreactions_received}</span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_received}<span class=\"float_right\">{\$lang->myreactions_received}</span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -311,7 +311,7 @@ linear=Linear",
 		</td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_given}<span class=\"float_right\">{\$lang->myreactions_given}</span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_given}<span class=\"float_right\">{\$lang->myreactions_given}</span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -521,7 +521,7 @@ function myreactions_postbit(&$post)
 		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 	}
 
-	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received, $post['reactions_received']).'<br />'.$lang->sprintf($lang->myreactions_given, $post['reactions_given']), $post['user_details']);
+	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, $post['reactions_received']).'<br />'.$lang->sprintf($lang->myreactions_given_postbit, $post['reactions_given']), $post['user_details']);
 }
 
 function myreactions_react()
@@ -699,8 +699,8 @@ function myreactions_profile()
 		$reactions_given = $lang->myreactions_profile_none;
 	}
 
-	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received, $memprofile['reactions_received']);
-	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given, $memprofile['reactions_given']);
+	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received_profile, $memprofile['reactions_received']);
+	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given_profile, $memprofile['reactions_given']);
 
 	eval("\$myreactions = \"".$templates->get('myreactions_profile', 1, 0)."\";");
 }
