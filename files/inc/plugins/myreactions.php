@@ -36,6 +36,9 @@ $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
 $plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
 
+global $templatelist;
+$templatelist .= ',myreactions_container,myreactions_reactions,myreactions_reaction,myreactions_reaction_image,myreactions_add,myreactions_react,myreactions_react_favourites,myreactions_profile';
+
 function myreactions_info()
 {
 	return array(
