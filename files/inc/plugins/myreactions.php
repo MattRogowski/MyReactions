@@ -393,6 +393,11 @@ function myreactions_postbit(&$post)
 {
 	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
+	if(!$mybb->user['uid'] || $mybb->usergroup['isbannedgroup'])
+	{
+		return;
+	}
+
 	if(in_array($mybb->input['action'], array('myreactions_react','myreactions_remove')))
 	{
 		myreactions_showthread($post);
@@ -601,6 +606,11 @@ function myreactions_react()
 function myreactions_profile()
 {
 	global $mybb, $db, $lang, $templates, $theme, $memprofile, $myreactions;
+
+	if(!$mybb->user['uid'] || $mybb->usergroup['isbannedgroup'])
+	{
+		return;
+	}
 
 	if(!$mybb->settings['myreactions_profile'])
 	{
