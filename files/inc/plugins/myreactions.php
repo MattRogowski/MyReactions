@@ -59,6 +59,46 @@ function myreactions_install()
 
 	myreactions_uninstall();
 
+	myreactions_db_changes();
+
+	change_admin_permission("forum", "myreactions", 1);
+}
+
+function myreactions_is_installed()
+{
+	global $db;
+
+	return $db->table_exists('myreactions') && $db->table_exists('post_reactions');
+}
+
+function myreactions_uninstall()
+{
+	global $db;
+
+	if($db->table_exists('myreactions'))
+	{
+		$db->drop_table('myreactions');
+	}
+	if($db->table_exists('post_reactions'))
+	{
+		$db->drop_table('post_reactions');
+	}
+	if($db->field_exists("reactions_received", "users"))
+	{
+		$db->drop_column("users", "reactions_received");
+	}
+	if($db->field_exists("reactions_given", "users"))
+	{
+		$db->drop_column("users", "reactions_given");
+	}
+
+	$db->delete_query('datacache', 'title = \'myreactions\'');
+}
+
+function myreactions_db_changes()
+{
+	global $db;
+
 	if(!$db->table_exists('myreactions'))
 	{
 		$db->write_query('CREATE TABLE `'.TABLE_PREFIX.'myreactions` (
@@ -93,31 +133,14 @@ function myreactions_install()
 		  KEY `post_reaction_uid` (`post_reaction_uid`)
 		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
 	}
-
-	change_admin_permission("forum", "myreactions", 1);
-}
-
-function myreactions_is_installed()
-{
-	global $db;
-
-	return $db->table_exists('myreactions') && $db->table_exists('post_reactions');
-}
-
-function myreactions_uninstall()
-{
-	global $db;
-
-	if($db->table_exists('myreactions'))
+	if(!$db->field_exists("reactions_received", "users"))
 	{
-		$db->drop_table('myreactions');
+		$db->add_column("users", "reactions_received", "int(11) NOT NULL DEFAULT 0");
 	}
-	if($db->table_exists('post_reactions'))
+	if(!$db->field_exists("reactions_given", "users"))
 	{
-		$db->drop_table('post_reactions');
+		$db->add_column("users", "reactions_given", "int(11) NOT NULL DEFAULT 0");
 	}
-
-	$db->delete_query('datacache', 'title = \'myreactions\'');
 }
 
 function myreactions_activate()
@@ -125,6 +148,8 @@ function myreactions_activate()
 	global $mybb, $db;
 	
 	myreactions_deactivate();
+
+	myreactions_db_changes();
 
 	$settings_group = array(
 		"name" => "myreactions",
@@ -197,6 +222,7 @@ linear=Linear",
 	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver='.preg_replace('/[^0-9]/', '', $myreactions_info['version']).'"></script>'."\n".'</head>');
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
+	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$post[\'replink\']}')."#i", '{$post[\'replink\']}{myreactions}');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
 	
 	$templates = array();
@@ -275,7 +301,7 @@ linear=Linear",
 		<td class=\"thead\"><strong>{\$lang->myreactions_profile_header}</strong></td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_received}</td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_received}<span class=\"float_right\">{\$lang->myreactions_received}</span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -285,7 +311,7 @@ linear=Linear",
 		</td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_given}</td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_given}<span class=\"float_right\">{\$lang->myreactions_given}</span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -337,6 +363,7 @@ function myreactions_deactivate()
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
+	find_replace_templatesets("postbit_author_user", "#".preg_quote('{myreactions}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 	
 	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile')");
@@ -493,6 +520,8 @@ function myreactions_postbit(&$post)
 	{
 		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 	}
+
+	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received, $post['reactions_received']).'<br />'.$lang->sprintf($lang->myreactions_given, $post['reactions_given']), $post['user_details']);
 }
 
 function myreactions_react()
@@ -582,7 +611,11 @@ function myreactions_react()
 
 		$db->insert_query('post_reactions', array('post_reaction_pid' => $post['pid'], 'post_reaction_rid' => $mybb->input['rid'], 'post_reaction_uid' => $mybb->user['uid'], 'post_reaction_date' => TIME_NOW));
 
+		myreactions_recount_received($post['uid']);
+		myreactions_recount_given($mybb->user['uid']);
+
 		myreactions_postbit($post);
+
 		echo $post['myreactions'];
 		exit;
 	}
@@ -596,7 +629,12 @@ function myreactions_react()
 		{
 			$db->delete_query('post_reactions', 'post_reaction_id = \''.$post_reaction['post_reaction_id'].'\'');
 			$post = get_post($post_reaction['post_reaction_pid']);
+
+			myreactions_recount_received($post['uid']);
+			myreactions_recount_given($mybb->user['uid']);
+
 			myreactions_postbit($post);
+
 			echo $post['myreactions'];
 			exit;
 		}
@@ -661,6 +699,9 @@ function myreactions_profile()
 		$reactions_given = $lang->myreactions_profile_none;
 	}
 
+	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received, $memprofile['reactions_received']);
+	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given, $memprofile['reactions_given']);
+
 	eval("\$myreactions = \"".$templates->get('myreactions_profile', 1, 0)."\";");
 }
 
@@ -675,6 +716,30 @@ function myreactions_by_post_and_user($pid, $uid)
 		$given_reactions[] = $rid;
 	}
 	return $given_reactions;
+}
+
+function myreactions_recount_received($uid)
+{
+	global $db;
+
+	$query = $db->write_query('
+		SELECT count(post_reaction_id) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p
+		ON (pr.post_reaction_pid = p.pid)
+		WHERE p.uid = \''.intval($uid).'\'
+	');
+	$count = $db->fetch_field($query, 'count');
+	$db->update_query('users', array('reactions_received' => $count), 'uid = \''.intval($uid).'\'');
+}
+
+function myreactions_recount_given($uid)
+{
+	global $db;
+
+	$query = $db->simple_select('post_reactions', 'COUNT(post_reaction_uid) AS count', 'post_reaction_uid = \''.intval($uid).'\'');
+	$count = $db->fetch_field($query, 'count');
+	$db->update_query('users', array('reactions_given' => $count), 'uid = \''.intval($uid).'\'');
 }
 
 function myreactions_admin_forum_menu($sub_menu)
