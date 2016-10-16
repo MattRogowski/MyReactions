@@ -18,6 +18,7 @@
 **/
 
 $l['myreactions_add'] = 'Add Reaction';
+$l['myreactions_remove'] = 'Click to remove';
 $l['myreactions_all'] = 'All Reactions';
 $l['myreactions_favourites'] = 'Favourite Reactions';
 $l['myreactions_error_own_post'] = 'You cannot react to your own post';
@@ -31,5 +32,14 @@ $l['myreactions_given_profile'] = 'Reactions given: {1}';
 $l['myreactions_profile_top_received'] = 'Top Received Reactions';
 $l['myreactions_profile_top_given'] = 'Top Given Reactions';
 $l['myreactions_profile_none'] = 'No reactions to show.';
-$l['myreactions_who_reacted'] = 'Who reacted';
+$l['myreactions_who_reacted_button'] = 'Who reacted';
+$l['myreactions_who_reacted_heading'] = 'Who reacted to this post';
+$l['myreactions_reacted_display_grouped'] = 'By Reaction';
+$l['myreactions_reacted_display_linear'] = 'By Time';
+$l['myreactions_reacted_display_user'] = 'By User';
+$l['myreactions_reacted_reaction'] = 'Reaction';
+$l['myreactions_reacted_reactions'] = 'Reactions';
+$l['myreactions_reacted_user'] = 'User';
+$l['myreactions_reacted_users'] = 'Users';
+$l['myreactions_reacted_date'] = 'Date';
 ?>

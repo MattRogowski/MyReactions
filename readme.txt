@@ -6,10 +6,11 @@ Authorsite: https://matt.rogow.ski
 Version: 0.0.3
 Compatibility: 1.8.x
 Files: 5
-Templates added: 8
-Template changes: 4
+Templates added: 13
+Template changes: 5
 Settings added: 4
-Tables added: 2
+Database Tables added: 2
+Database Columns added: 2
 
 Information:
 This plugin allows you to add emoji reactions to user's posts.
@@ -35,7 +36,7 @@ Change Log:
 27/09/16 - v0.0.1 -> Initial 'beta' release.
 27/09/16 - v0.0.1 -> v0.0.2 -> Fixes issue with forums in subdirectories, and fixes CSRF issue with adding and removing reactions. To upgrade, reupload ./inc/plugins/myreactions.php and ./jscripts/myreactions.js. Thanks to Devilshakerz for the CSRF tip (and my bad for forgetting to do it in the first place)
 07/10/16 - v0.0.2 -> v0.0.3 -> Fixes bug where button to add reactions was displayed to guests. To upgrade, reupload ./inc/plugins/myreactions.php
-XX/XX/XX - v0.0.3 -> v1.0.0 -> Fixes bug where database table prefix was hardcoded. Improvement to how reactions are removed. A count of how many reactions a user has received and given now shows in the postbit and on their profiles. To upgrade, reupload ./inc/plugins/myreactions.php. Thanks to @myudev for the database table prefix bug report and pull request, and Eldenroot/@Cu8eR for the feedback and suggestions
+XX/XX/XX - v0.0.3 -> v1.0.0 -> Fixes bug where database table prefix was hardcoded. Improvement to how reactions are removed. A count of how many reactions a user has received and given now shows in the postbit and on their profiles. Lists of who reacted to a post is now in a modal. To upgrade, reupload ./inc/plugins/myreactions.php. Thanks to @myudev for the database table prefix bug report and pull request, and Eldenroot/@Cu8eR for the feedback and suggestions
 
 Copyright 2016 Matthew Rogowski
 

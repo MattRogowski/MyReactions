@@ -60,8 +60,12 @@
   cursor: pointer;
 }
 
-/* Reaction Modal */
-.myreactions-react img {
+/* Reaction and Reacted Modal */
+.myreactions-post-reacted {
+  max-height: 800px;
+  overflow: auto;
+}
+.myreactions-react img, .myreactions-post-reacted img {
   width: 24px;
   height: 24px;
   padding: 5px;
@@ -74,6 +78,12 @@
   opacity: 0.25;
   -webkit-filter: grayscale(100%);
     filter: grayscale(100%);
+}
+.myreactions-post-reacted .myreactions_reacted_row_hidden {
+  display: none;  
+}
+.myreactions-post-reacted label {
+  cursor: pointer;  
 }
 
 /* Reaction image sizes */

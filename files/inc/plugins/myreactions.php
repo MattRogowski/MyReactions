@@ -37,7 +37,7 @@ $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action
 $plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
 
 global $templatelist;
-$templatelist .= ',myreactions_container,myreactions_reactions,myreactions_reaction,myreactions_reaction_image,myreactions_add,myreactions_react,myreactions_react_favourites,myreactions_profile';
+$templatelist .= ',myreactions_container,myreactions_reactions,myreactions_reaction,myreactions_reaction_image,myreactions_add,myreactions_react,myreactions_react_favourites,myreactions_profile,myreactions_reacted_button,myreactions_reacted,myreactions_reacted_row_grouped,myreactions_reacted_row_linear,myreactions_reacted_row_user';
 
 function myreactions_info()
 {
@@ -324,8 +324,65 @@ linear=Linear",
 	$templates[] = array(
 		"title" => "myreactions_reacted_button",
 		"template" => "<div class=\"myreactions-reaction reaction-reacted reaction-hover-show\" onclick=\"MyReactions.reacted('{\$post['pid']}');\">
-  <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted}</span>
+  <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted_button}</span>
 </div>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_reacted",
+		"template" => "<div class=\"modal\">
+	<div class=\"myreactions-post-reacted\">
+		<table border=\"0\" cellspacing=\"{\$theme['borderwidth']}\" cellpadding=\"{\$theme['tablespace']}\" class=\"tborder\">
+			<tr>
+				<td class=\"thead\" colspan=\"3\"><strong>{\$lang->myreactions_who_reacted_heading}</strong></td>
+			</tr>
+			<tr>
+				<td class=\"trow1\" colspan=\"3\" align=\"center\">
+					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_grouped\" value=\"grouped\" onchange=\"MyReactions.reactedView()\" checked=\"checked\" /> <label for=\"myreactions_reacted_display_grouped\">{\$lang->myreactions_reacted_display_grouped}</label>
+					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_linear\" value=\"linear\" onchange=\"MyReactions.reactedView()\" /> <label for=\"myreactions_reacted_display_linear\">{\$lang->myreactions_reacted_display_linear}</label>
+					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_user\" value=\"user\" onchange=\"MyReactions.reactedView()\" /> <label for=\"myreactions_reacted_display_user\">{\$lang->myreactions_reacted_display_user}</label>
+				</td>
+			</tr>
+			<tr class=\"myreactions_reacted_row myreactions_reacted_row_grouped\">
+				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_reaction}</td>
+				<td class=\"tcat\">{\$lang->myreactions_reacted_users}</td>
+			</tr>
+			{\$reacted_grouped}
+			<tr class=\"myreactions_reacted_row myreactions_reacted_row_linear myreactions_reacted_row_hidden\">
+				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_reaction}</td>
+				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_user}</td>
+				<td class=\"tcat\">{\$lang->myreactions_reacted_date}</td>
+			</tr>
+			{\$reacted_linear}
+			<tr class=\"myreactions_reacted_row myreactions_reacted_row_user myreactions_reacted_row_hidden\">
+				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_user}</td>
+				<td class=\"tcat\">{\$lang->myreactions_reacted_reactions}</td>
+			</tr>
+			{\$reacted_user}
+		</table>
+	</div>
+</div>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_reacted_row_grouped",
+		"template" => "<tr class=\"myreactions_reacted_row myreactions_reacted_row_grouped\">
+	<td class=\"{\$trow}\" width=\"10%\" align=\"center\">{\$image}</td>
+	<td class=\"{\$trow}\">{\$users}</td>
+</tr>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_reacted_row_linear",
+		"template" => "<tr class=\"myreactions_reacted_row myreactions_reacted_row_linear myreactions_reacted_row_hidden\">
+	<td class=\"{\$trow}\" width=\"10%\" align=\"center\">{\$image}</td>
+	<td class=\"{\$trow}\" width=\"20%\" align=\"center\">{\$user}</td>
+	<td class=\"{\$trow}\">{\$date}</td>
+</tr>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_reacted_row_user",
+		"template" => "<tr class=\"myreactions_reacted_row myreactions_reacted_row_user myreactions_reacted_row_hidden\">
+	<td class=\"{\$trow}\" width=\"25%\" align=\"center\">{\$user}</td>
+	<td class=\"{\$trow}\">{\$images}</td>
+</tr>"
 	);
 	
 	foreach($templates as $template)
@@ -370,7 +427,7 @@ function myreactions_deactivate()
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{myreactions}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile')");
+	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile','myreactions_reacted_button','myreactions_reacted','myreactions_reacted_row_grouped','myreactions_reacted_row_linear','myreactions_reacted_row_user')");
 }
 
 function myreactions_cache()
@@ -466,12 +523,14 @@ function myreactions_postbit(&$post)
 			{
 				$class = $onclick = '';
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
+				$title = ' title="'.$received_reaction['reaction_name'];
 				if(in_array($received_reaction['post_reaction_id'], $reacted_ids))
 				{
 					$class = ' class="myreactions-reacted"';
 					$onclick = ' onclick="MyReactions.remove('.$received_reaction['post_reaction_rid'].','.$post['pid'].');"';
+					$title .= ' - '.$lang->myreactions_remove;
 				}
-				$title = ' title="'.$received_reaction['reaction_name'].' - '.$received_reaction['username'].'"';
+				$title .= '"';
 				eval("\$reactions .= \"".$templates->get('myreactions_reaction_image')."\";");
 			}
 			if($reactions)
@@ -508,14 +567,16 @@ function myreactions_postbit(&$post)
 			{
 				$reaction = $all_reactions[$rid];
 				$count = $info['count'];
-				$title = ' title="'.$info['name'].' - '.implode(', ', $info['users']).'"';
-				$class = $onclick = '';
+				$class = $onclick = $title = '';
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+				$title = ' title="'.$info['name'];
 				if(in_array($rid, $reacted_reactions))
 				{
 					$class = ' myreactions-reacted';
 					$onclick = ' onclick="MyReactions.remove('.$rid.','.$post['pid'].');"';
+					$title .= ' - '.$lang->myreactions_remove;
 				}
+				$title .= '"';
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
@@ -542,6 +603,11 @@ function myreactions_postbit(&$post)
 function myreactions_react()
 {
 	global $mybb, $db, $lang, $cache, $templates, $theme;
+
+	if(!$mybb->user['uid'] || $mybb->usergroup['isbannedgroup'])
+	{
+		return;
+	}
 
 	if($mybb->input['action'] == 'myreactions')
 	{
@@ -653,6 +719,83 @@ function myreactions_react()
 			echo $post['myreactions'];
 			exit;
 		}
+	}
+	elseif($mybb->input['action'] == 'myreactions_reacted')
+	{
+		$lang->load('myreactions');
+
+		$reactions_grouped = $reactions_linear = $reactions_user = array();
+		$post_reactions = $db->write_query('
+			SELECT pr.*, r.*, u.username AS username, u.uid AS uid, u.usergroup as usergroup, u.displaygroup as displaygroup
+			FROM '.TABLE_PREFIX.'post_reactions pr
+			JOIN '.TABLE_PREFIX.'myreactions r ON (pr.post_reaction_rid = r.reaction_id)
+			JOIN '.TABLE_PREFIX.'users u ON (pr.post_reaction_uid = u.uid)
+			WHERE pr.post_reaction_pid = \''.$mybb->input['pid'].'\'
+			ORDER BY post_reaction_date DESC
+		');
+		while($post_reaction = $db->fetch_array($post_reactions))
+		{
+			if(!array_key_exists($post_reaction['post_reaction_rid'], $reactions_grouped))
+			{
+				$reactions_grouped[$post_reaction['post_reaction_rid']] = array('count' => 0, 'reacted' => array());
+			}
+			$reactions_grouped[$post_reaction['post_reaction_rid']]['count']++;
+			$reactions_grouped[$post_reaction['post_reaction_rid']]['reacted'][] = $post_reaction;
+			$reactions_linear[] = $post_reaction;
+			if(!array_key_exists($post_reaction['username'], $reactions_user))
+			{
+				$reactions_user[$post_reaction['username']] = array();
+			}
+			$reactions_user[$post_reaction['username']][] = $post_reaction;
+		}
+		usort($reactions_grouped, function($a, $b) {
+			return $a['count'] < $b['count'];
+		});
+		krsort($reactions_linear);
+		ksort($reactions_user);
+		$reactions_grouped = array_values($reactions_grouped);
+		$reactions_user = array_values($reactions_user);
+		$reacted_grouped = $reacted_linear = $reacted_user = '';
+		foreach($reactions_grouped as $i => $r)
+		{
+			$trow = alt_trow($i == 0);
+			$reaction = $r['reacted'][0];
+			$title = ' title="'.$r['reacted'][0]['reaction_name'].'"';
+			eval("\$image = \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			$users = array();
+			foreach($r['reacted'] as $u)
+			{
+				$users[] = build_profile_link(format_name($u['username'], $u['usergroup'], $u['displaygroup']), $u['uid'], '_blank');
+			}
+			$users = implode(', ', $users);
+			eval("\$reacted_grouped .= \"".$templates->get('myreactions_reacted_row_grouped', 1, 0)."\";");
+		}
+		foreach($reactions_linear as $i => $r)
+		{
+			$trow = alt_trow($i == 0);
+			$reaction = $r;
+			$title = ' title="'.$r['reaction_name'].'"';
+			eval("\$image = \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			$user = build_profile_link(format_name($r['username'], $r['usergroup'], $r['displaygroup']), $r['uid'], '_blank');
+			$date = my_date($mybb->settings['dateformat'].' @ '.$mybb->settings['timeformat'], $r['post_reaction_date']);
+			eval("\$reacted_linear .= \"".$templates->get('myreactions_reacted_row_linear', 1, 0)."\";");
+		}
+		foreach($reactions_user as $i => $r)
+		{
+			$trow = alt_trow($i == 0);
+			$user = build_profile_link(format_name($r[0]['username'], $r[0]['usergroup'], $r[0]['displaygroup']), $r[0]['uid'], '_blank');
+			$images = '';
+			krsort($r);
+			foreach($r as $reaction)
+			{
+				$title = ' title="'.$reaction['reaction_name'].'"';
+				eval("\$images .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			}
+			eval("\$reacted_user .= \"".$templates->get('myreactions_reacted_row_user', 1, 0)."\";");
+		}
+		eval("\$reacted = \"".$templates->get('myreactions_reacted', 1, 0)."\";");
+		echo $reacted;
+		exit;
 	}
 }
 

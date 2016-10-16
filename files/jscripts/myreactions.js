@@ -33,6 +33,15 @@ var MyReactions = {
 			$('#post_'+pid).find('.post_controls').before(resp);
 			$.modal.close();
 		});
+	},
+	reacted: function(pid)
+	{
+		MyBB.popupWindow('/misc.php?action=myreactions_reacted&pid='+pid);
+	},
+	reactedView: function()
+	{
+		$('.myreactions_reacted_row').addClass('myreactions_reacted_row_hidden');
+		$('.myreactions_reacted_row.myreactions_reacted_row_'+$('input[name="myreactions_reacted_display"]:checked').val()).removeClass('myreactions_reacted_row_hidden');
 	}
 };
 
