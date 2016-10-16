@@ -641,6 +641,7 @@ function myreactions_react()
 			{
 				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
 			}
+			$title = ' title="'.$reaction['reaction_name'].'"';
 			eval("\$favourite_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 			
 		}
@@ -660,6 +661,7 @@ function myreactions_react()
 			{
 				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
 			}
+			$title = ' title="'.$reaction['reaction_name'].'"';
 			eval("\$reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
 		}
 
@@ -830,7 +832,9 @@ function myreactions_profile()
 	while($reaction = $db->fetch_array($received_query))
 	{
 		$count = $reaction['count'];
+		$title = '';
 		eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+		$title = ' title="'.$reaction['reaction_name'].'"';
 		eval("\$reactions_received .= \"".$templates->get('myreactions_reaction')."\";");
 	}
 	if(!$reactions_received)
@@ -849,7 +853,9 @@ function myreactions_profile()
 	while($reaction = $db->fetch_array($given_query))
 	{
 		$count = $reaction['count'];
+		$title = '';
 		eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
+		$title = ' title="'.$reaction['reaction_name'].'"';
 		eval("\$reactions_given .= \"".$templates->get('myreactions_reaction')."\";");
 	}
 	if(!$reactions_given)
