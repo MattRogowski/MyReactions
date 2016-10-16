@@ -33,26 +33,29 @@
   display: inline-block;
 }
 
-/* Add Reaction */
-.reaction-add {
+/* Add Reaction, Reacted, Hovers */
+.reaction-hover-show {
   display: none;
   margin: 0;
   float: left;
   cursor: pointer;
 }
 .reaction-add span {
-  display: none;  
+  display: none;
 }
-.myreactions-reaction + .reaction-add {
-  margin: 2px;  
+.myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-add + .reaction-reacted {
+  margin: 2px;
 }
-.myreactions-container:hover .reaction-add, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
+.myreactions-reactions + .reaction-add, .myreactions-reactions + .reaction-add + .reaction-reacted {
+  margin-right: 5px;  
+}
+.myreactions-container:hover .reaction-hover-show, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
   display: inline-block;
 }
 .myreactions-container.myreactions-post:hover .myreactions-reactions > img, .myreactions-container.myreactions-post:hover .myreactions-reaction {
-  opacity: 0.25;  
+  opacity: 0.25;
 }
-.myreactions-container.myreactions-post:hover .myreactions-reactions > img.myreactions-reacted, .myreactions-container.myreactions-post:hover .myreactions-reaction.myreactions-reacted, .myreactions-container.myreactions-post:hover .reaction-add {
+.myreactions-container.myreactions-post:hover .myreactions-reactions > img.myreactions-reacted, .myreactions-container.myreactions-post:hover .myreactions-reaction.myreactions-reacted, .myreactions-container.myreactions-post:hover .reaction-hover-show {
   opacity: 1;
   cursor: pointer;
 }

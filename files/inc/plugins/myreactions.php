@@ -232,7 +232,6 @@ linear=Linear",
 <div class=\"myreactions-container reactions-{\$size} myreactions-post\">
   {\$post_reactions}
   <div style=\"clear:both\"></div>
-  <div class=\"myreactions-reacted\">{\$reacted_with}</div>
 </div>"
 	);
 	$templates[] = array(
@@ -254,10 +253,9 @@ linear=Linear",
 	);
 	$templates[] = array(
 		"title" => "myreactions_add",
-		"template" => "<div class=\"myreactions-reaction reaction-add{\$force}\" onclick=\"MyReactions.reactions('{\$post['pid']}');\">
+		"template" => "<div class=\"myreactions-reaction reaction-add{\$force} reaction-hover-show\" onclick=\"MyReactions.reactions('{\$post['pid']}');\">
   <img src=\"{\$mybb->settings['bburl']}/images/reactions/plus.png\" /> <span>{\$lang->myreactions_add}</span>
-</div>
-<div style=\"clear:both\"></div>"
+</div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_react",
@@ -322,6 +320,12 @@ linear=Linear",
 	</tr>
 </table>
 <br />"
+	);
+	$templates[] = array(
+		"title" => "myreactions_reacted_button",
+		"template" => "<div class=\"myreactions-reaction reaction-reacted reaction-hover-show\" onclick=\"MyReactions.reacted('{\$post['pid']}');\">
+  <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted}</span>
+</div>"
 	);
 	
 	foreach($templates as $template)
@@ -449,7 +453,7 @@ function myreactions_postbit(&$post)
 
 	$size = $mybb->settings['myreactions_size'];
 	$post_reactions = '';
-
+$mybb->settings['myreactions_type'] = $mybb->input['myreactions_type'];
 	switch($mybb->settings['myreactions_type'])
 	{
 		case 'linear':
@@ -476,6 +480,10 @@ function myreactions_postbit(&$post)
 			{
 				$force = (!$reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
+			}
+			if($reactions)
+			{
+				eval("\$post_reactions .= \"".$templates->get('myreactions_reacted_button')."\";");
 			}
 			break;
 		case 'grouped':
@@ -512,6 +520,10 @@ function myreactions_postbit(&$post)
 			{
 				$force = (!$grouped_reactions?' reaction-add-force':'');
 				eval("\$post_reactions .= \"".$templates->get('myreactions_add')."\";");
+			}
+			if($grouped_reactions)
+			{
+				eval("\$post_reactions .= \"".$templates->get('myreactions_reacted_button')."\";");
 			}
 			break;
 	}
