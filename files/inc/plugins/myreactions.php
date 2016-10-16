@@ -453,7 +453,10 @@ function myreactions_postbit(&$post)
 
 	$size = $mybb->settings['myreactions_size'];
 	$post_reactions = '';
-$mybb->settings['myreactions_type'] = $mybb->input['myreactions_type'];
+	if($mybb->input['myreactions_debug'])
+	{
+		$mybb->settings['myreactions_type'] = $mybb->input['myreactions_type'];
+	}
 	switch($mybb->settings['myreactions_type'])
 	{
 		case 'linear':
