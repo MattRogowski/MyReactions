@@ -618,10 +618,12 @@ function myreactions_react()
 
 		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
 
-		$post_preview = $post['message'];
-		if(my_strlen($post['message']) > 100)
+		require_once MYBB_ROOT.'inc/class_parser.php';
+		$parser = new postParser;
+		$post_preview = $parser->text_parse_message($post['message'], array('filter_badwords' => true));
+		if(my_strlen($post_preview) > 140)
 		{
-			$post_preview = my_substr($post['message'], 0, 140).'...';
+			$post_preview = my_substr($post_preview, 0, 140).'...';
 		}
 
 		$reactions = $favourite_reactions = '';
