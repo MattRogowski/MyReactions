@@ -1,6 +1,7 @@
 .myreactions-container {
-  padding: 10px;
+  padding: 5px 10px 5px 5px;
   border-top: 1px solid #ccc;
+  border-bottom: 1px dotted #ccc;
 }
 .myreactions-container.myreactions-profile-container {
   padding: 0;
@@ -11,8 +12,11 @@
   border: 1px solid #ccc;
   display: inline-block;
   border-radius: 6px;
+  color: #555;
 }
-
+.myreactions-reactions:hover, .myreactions-reaction:hover {
+  border: 1px solid #aaa;
+}
 .myreactions-reaction {
   display: inline-block;
   margin: 2px;
