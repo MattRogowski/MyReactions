@@ -11,8 +11,11 @@
   border: 1px solid #ccc;
   display: inline-block;
   border-radius: 6px;
+  color: #555;
 }
-
+.myreactions-reactions:hover, .myreactions-reaction:hover {
+  border: 1px solid #aaa;
+}
 .myreactions-reaction {
   display: inline-block;
   margin: 2px;
