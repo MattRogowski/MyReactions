@@ -220,6 +220,7 @@ linear=Linear",
 	$myreactions_info = myreactions_info();
 
 	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver='.preg_replace('/[^0-9]/', '', $myreactions_info['version']).'"></script>'."\n".'</head>');
+	find_replace_templatesets("member_profile", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver='.preg_replace('/[^0-9]/', '', $myreactions_info['version']).'"></script>'."\n".'</head>');
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$post[\'replink\']}')."#i", '{$post[\'replink\']}{myreactions}');
@@ -299,7 +300,7 @@ linear=Linear",
 		<td class=\"thead\"><strong>{\$lang->myreactions_profile_header}</strong></td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_top_received}<span class=\"float_right\">{\$lang->myreactions_received}</span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_received}<span class=\"float_right\">{\$lang->myreactions_received} <a href=\"javascriot:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']});\">{\$lang->myreactions_view_all}</a></span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -309,7 +310,7 @@ linear=Linear",
 		</td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_top_given}<span class=\"float_right\">{\$lang->myreactions_given}</span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_given}<span class=\"float_right\">{\$lang->myreactions_given} <a href=\"javascriot:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']});\">{\$lang->myreactions_view_all}</a></span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -323,7 +324,7 @@ linear=Linear",
 	);
 	$templates[] = array(
 		"title" => "myreactions_reacted_button",
-		"template" => "<div class=\"myreactions-reaction reaction-reacted reaction-hover-show\" onclick=\"MyReactions.reacted('{\$post['pid']}');\">
+		"template" => "<div class=\"myreactions-reaction reaction-reacted reaction-hover-show\" onclick=\"MyReactions.reactedPost('{\$post['pid']}');\">
   <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted_button}</span>
 </div>"
 	);
@@ -422,6 +423,8 @@ function myreactions_deactivate()
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
+	find_replace_templatesets("member_profile", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\n".'</head>')."#i", '</head>', 0);
+	find_replace_templatesets("member_profile", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{myreactions}')."#i", '', 0);
@@ -729,12 +732,21 @@ function myreactions_react()
 		$lang->load('myreactions');
 
 		$reactions_grouped = $reactions_linear = $reactions_user = array();
+		if($mybb->input['pid'])
+		{
+			$where = 'pr.post_reaction_pid = \''.$mybb->input['pid'].'\'';
+		}
+		elseif($mybb->input['uid'])
+		{
+			$where = 'p.uid = \''.$mybb->input['uid'].'\'';
+		}
 		$post_reactions = $db->write_query('
 			SELECT pr.*, r.*, u.username AS username, u.uid AS uid, u.usergroup as usergroup, u.displaygroup as displaygroup
 			FROM '.TABLE_PREFIX.'post_reactions pr
 			JOIN '.TABLE_PREFIX.'myreactions r ON (pr.post_reaction_rid = r.reaction_id)
 			JOIN '.TABLE_PREFIX.'users u ON (pr.post_reaction_uid = u.uid)
-			WHERE pr.post_reaction_pid = \''.$mybb->input['pid'].'\'
+			JOIN '.TABLE_PREFIX.'posts p ON (pr.post_reaction_pid = p.pid)
+			WHERE '.$where.'
 			ORDER BY post_reaction_date DESC
 		');
 		while($post_reaction = $db->fetch_array($post_reactions))

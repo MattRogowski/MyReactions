@@ -34,9 +34,13 @@ var MyReactions = {
 			$.modal.close();
 		});
 	},
-	reacted: function(pid)
+	reactedPost: function(pid)
 	{
 		MyBB.popupWindow('/misc.php?action=myreactions_reacted&pid='+pid);
+	},
+	reactedUser: function(uid)
+	{
+		MyBB.popupWindow('/misc.php?action=myreactions_reacted&uid='+uid);
 	},
 	reactedView: function()
 	{
