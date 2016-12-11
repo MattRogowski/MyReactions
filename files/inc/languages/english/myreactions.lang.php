@@ -41,6 +41,7 @@ $l['myreactions_who_reacted_heading_user_given'] = 'Who {1} reacted to';
 $l['myreactions_reacted_display_grouped'] = 'By Reaction';
 $l['myreactions_reacted_display_linear'] = 'By Time';
 $l['myreactions_reacted_display_user'] = 'By User';
+$l['myreactions_reacted_display_all'] = 'All';
 $l['myreactions_reacted_reaction'] = 'Reaction';
 $l['myreactions_reacted_reactions'] = 'Reactions';
 $l['myreactions_reacted_count'] = 'Times Given';

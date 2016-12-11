@@ -467,6 +467,10 @@ function myreactions_misc()
 			$user = build_profile_link(format_name($r['username'], $r['usergroup'], $r['displaygroup']), $r['uid'], '_blank');
 			$date = my_date($mybb->settings['dateformat'].' @ '.$mybb->settings['timeformat'], $r['post_reaction_date']);
 			eval("\$reacted_linear .= \"".$templates->get('myreactions_reacted_row_linear', 1, 0)."\";");
+
+			$title = ' title="'.$r['reaction_name'].' - '.$r['username'].' - '.$date.'"';
+			eval("\$image = \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			$reacted_all .= $image;
 		}
 		foreach($reactions_user as $i => $r)
 		{

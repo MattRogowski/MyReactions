@@ -328,6 +328,7 @@ linear=Linear",
 					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_grouped\" value=\"grouped\" onchange=\"MyReactions.reactedView()\" checked=\"checked\" /> <label for=\"myreactions_reacted_display_grouped\">{\$lang->myreactions_reacted_display_grouped}</label>
 					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_linear\" value=\"linear\" onchange=\"MyReactions.reactedView()\" /> <label for=\"myreactions_reacted_display_linear\">{\$lang->myreactions_reacted_display_linear}</label>
 					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_user\" value=\"user\" onchange=\"MyReactions.reactedView()\" /> <label for=\"myreactions_reacted_display_user\">{\$lang->myreactions_reacted_display_user}</label>
+					<input type=\"radio\" name=\"myreactions_reacted_display\" id=\"myreactions_reacted_display_all\" value=\"all\" onchange=\"MyReactions.reactedView()\" /> <label for=\"myreactions_reacted_display_all\">{\$lang->myreactions_reacted_display_all}</label>
 				</td>
 			</tr>
 			<tr class=\"myreactions_reacted_row myreactions_reacted_row_grouped\">
@@ -347,6 +348,9 @@ linear=Linear",
 				<td class=\"tcat\">{\$lang->myreactions_reacted_reactions}</td>
 			</tr>
 			{\$reacted_user}
+			<tr class=\"myreactions_reacted_row myreactions_reacted_row_all myreactions_reacted_row_hidden\">
+				<td>{\$reacted_all}</td>
+			</tr>
 		</table>
 	</div>
 </div>"
