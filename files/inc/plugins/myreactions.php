@@ -389,20 +389,34 @@ function myreactions_misc()
 		$lang->load('myreactions');
 
 		$reactions_grouped = $reactions_linear = $reactions_user = array();
+		$users_join = 'JOIN '.TABLE_PREFIX.'users u ON (pr.post_reaction_uid = u.uid)';
 		if($mybb->input['pid'])
 		{
 			$where = 'pr.post_reaction_pid = \''.$mybb->input['pid'].'\'';
+			$reacted_heading = $lang->myreactions_who_reacted_heading_post;
 		}
 		elseif($mybb->input['uid'])
 		{
-			$where = 'p.uid = \''.$mybb->input['uid'].'\'';
+			$user = get_user($mybb->input['uid']);
+			switch($mybb->input['type'])
+			{
+				case 'received':
+					$reacted_heading = $lang->sprintf($lang->myreactions_who_reacted_heading_user_received, $user['username']);
+					$where = 'p.uid = \''.$mybb->input['uid'].'\'';
+					break;
+				case 'given':
+					$reacted_heading = $lang->sprintf($lang->myreactions_who_reacted_heading_user_given, $user['username']);
+					$users_join = 'JOIN '.TABLE_PREFIX.'users u ON (p.uid = u.uid)';
+					$where = 'pr.post_reaction_uid = \''.$mybb->input['uid'].'\'';
+					break;
+			}
 		}
 		$post_reactions = $db->write_query('
 			SELECT pr.*, r.*, u.username AS username, u.uid AS uid, u.usergroup as usergroup, u.displaygroup as displaygroup
 			FROM '.TABLE_PREFIX.'post_reactions pr
 			JOIN '.TABLE_PREFIX.'myreactions r ON (pr.post_reaction_rid = r.reaction_id)
-			JOIN '.TABLE_PREFIX.'users u ON (pr.post_reaction_uid = u.uid)
 			JOIN '.TABLE_PREFIX.'posts p ON (pr.post_reaction_pid = p.pid)
+			'.$users_join.'
 			WHERE '.$where.'
 			ORDER BY post_reaction_date DESC
 		');
@@ -518,6 +532,7 @@ function myreactions_profile()
 		SELECT '.TABLE_PREFIX.'myreactions.*, count(post_reaction_id) as count
 		FROM '.TABLE_PREFIX.'myreactions
 		JOIN '.TABLE_PREFIX.'post_reactions ON post_reaction_rid = reaction_id AND post_reaction_uid = \''.$memprofile['uid'].'\'
+		JOIN '.TABLE_PREFIX.'posts on post_reaction_pid = pid
 		GROUP BY reaction_id
 		ORDER BY count DESC
 		LIMIT 10
@@ -573,7 +588,13 @@ function myreactions_recount_given($uid)
 {
 	global $db;
 
-	$query = $db->simple_select('post_reactions', 'COUNT(post_reaction_uid) AS count', 'post_reaction_uid = \''.intval($uid).'\'');
+	$query = $db->write_query('
+		SELECT count(post_reaction_id) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p
+		ON (pr.post_reaction_pid = p.pid)
+		WHERE pr.post_reaction_uid = \''.intval($uid).'\'
+	');
 	$count = $db->fetch_field($query, 'count');
 	$db->update_query('users', array('reactions_given' => $count), 'uid = \''.intval($uid).'\'');
 }

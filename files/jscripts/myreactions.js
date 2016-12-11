@@ -38,9 +38,9 @@ var MyReactions = {
 	{
 		MyBB.popupWindow('/misc.php?action=myreactions_reacted&pid='+pid);
 	},
-	reactedUser: function(uid)
+	reactedUser: function(uid, type)
 	{
-		MyBB.popupWindow('/misc.php?action=myreactions_reacted&uid='+uid);
+		MyBB.popupWindow('/misc.php?action=myreactions_reacted&uid='+uid+'&type='+type);
 	},
 	reactedView: function()
 	{
