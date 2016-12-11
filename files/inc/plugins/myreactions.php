@@ -30,7 +30,7 @@ if(!defined("IN_MYBB"))
 
 $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
-$plugins->add_hook('misc_start', 'myreactions_react');
+$plugins->add_hook('misc_start', 'myreactions_misc');
 $plugins->add_hook('member_profile_end', 'myreactions_profile');
 $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
@@ -605,7 +605,7 @@ function myreactions_postbit(&$post)
 	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, $post['reactions_received']).'<br />'.$lang->sprintf($lang->myreactions_given_postbit, $post['reactions_given']), $post['user_details']);
 }
 
-function myreactions_react()
+function myreactions_misc()
 {
 	global $mybb, $db, $lang, $cache, $templates, $theme;
 
