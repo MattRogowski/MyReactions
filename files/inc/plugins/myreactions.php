@@ -345,6 +345,7 @@ linear=Linear",
 			</tr>
 			<tr class=\"myreactions_reacted_row myreactions_reacted_row_grouped\">
 				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_reaction}</td>
+				<td class=\"tcat\" align=\"center\">{\$lang->myreactions_reacted_count}</td>
 				<td class=\"tcat\">{\$lang->myreactions_reacted_users}</td>
 			</tr>
 			{\$reacted_grouped}
@@ -367,6 +368,7 @@ linear=Linear",
 		"title" => "myreactions_reacted_row_grouped",
 		"template" => "<tr class=\"myreactions_reacted_row myreactions_reacted_row_grouped\">
 	<td class=\"{\$trow}\" width=\"10%\" align=\"center\">{\$image}</td>
+	<td class=\"{\$trow}\">{\$count}</td>
 	<td class=\"{\$trow}\">{\$users}</td>
 </tr>"
 	);
@@ -783,6 +785,7 @@ function myreactions_react()
 			{
 				$users[] = build_profile_link(format_name($u['username'], $u['usergroup'], $u['displaygroup']), $u['uid'], '_blank');
 			}
+			$count = count($users);
 			$users = implode(', ', $users);
 			eval("\$reacted_grouped .= \"".$templates->get('myreactions_reacted_row_grouped', 1, 0)."\";");
 		}
