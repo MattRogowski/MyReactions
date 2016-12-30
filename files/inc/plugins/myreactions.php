@@ -449,13 +449,35 @@ function myreactions_misc()
 			$reaction = $r['reacted'][0];
 			$title = ' title="'.$r['reacted'][0]['reaction_name'].'"';
 			eval("\$image = \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+			$count = 0;
 			$users = array();
 			foreach($r['reacted'] as $u)
 			{
-				$users[] = build_profile_link(format_name($u['username'], $u['usergroup'], $u['displaygroup']), $u['uid'], '_blank');
+				$count++;
+				if(!array_key_exists($u['uid'], $users))
+				{
+					$users[$u['uid']] = array('count' => 0, 'user' => $u);
+				}
+				$users[$u['uid']]['count']++;
 			}
-			$count = count($users);
-			$users = implode(', ', $users);
+			foreach($users as $uid => $info)
+			{
+				$formatted_name = format_name($info['user']['username'], $info['user']['usergroup'], $info['user']['displaygroup']);
+				if($info['count'] > 1)
+				{
+					$formatted_name .= ' (x'.$info['count'].')';
+				}
+				$users[$uid]['link'] = build_profile_link($formatted_name, $info['user']['uid'], '_blank');
+			}
+			usort($users, function($a, $b) {
+				return $a['count'] < $b['count'];
+			});
+			$built_users = array();
+			foreach($users as $user)
+			{
+				$built_users[] = $user['link'];
+			}
+			$users = implode(', ', $built_users);
 			eval("\$reacted_grouped .= \"".$templates->get('myreactions_reacted_row_grouped', 1, 0)."\";");
 		}
 		foreach($reactions_linear as $i => $r)
