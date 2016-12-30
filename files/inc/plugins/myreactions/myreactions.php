@@ -135,7 +135,7 @@ function myreactions_do_db_changes()
 function myreactions_do_activate()
 {
 	global $mybb, $db;
-	
+
 	myreactions_do_deactivate();
 
 	myreactions_do_db_changes();
@@ -149,7 +149,7 @@ function myreactions_do_activate()
 	);
 	$db->insert_query("settinggroups", $settings_group);
 	$gid = $db->insert_id();
-	
+
 	$settings = array();
 	$settings[] = array(
 		"name" => "myreactions_type",
@@ -201,9 +201,9 @@ linear=Linear",
 		$db->insert_query("settings", $insert);
 		$i++;
 	}
-	
+
 	rebuild_settings();
-	
+
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
 	find_replace_templatesets("showthread", "#".preg_quote('</head>')."#i", '<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver='.preg_replace('/[^0-9]/', '', MYREACTIONS_VERSION).'"></script>'."\n".'</head>');
@@ -212,7 +212,7 @@ linear=Linear",
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$post[\'replink\']}')."#i", '{$post[\'replink\']}{myreactions}');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
-	
+
 	$templates = array();
 	$templates[] = array(
 		"title" => "myreactions_container",
@@ -378,7 +378,7 @@ linear=Linear",
 	<td class=\"{\$trow}\">{\$images}</td>
 </tr>"
 	);
-	
+
 	foreach($templates as $template)
 	{
 		$insert = array(
@@ -389,7 +389,7 @@ linear=Linear",
 			"status" => "",
 			"dateline" => TIME_NOW
 		);
-		
+
 		$db->insert_query("templates", $insert);
 	}
 
@@ -399,20 +399,13 @@ linear=Linear",
 function myreactions_do_deactivate()
 {
 	global $mybb, $db;
-	
+
 	$db->delete_query("settinggroups", "name = 'myreactions'");
-	
-	$settings = array(
-		"myreactions_type",
-		"myreactions_size",
-		"myreactions_multiple",
-		"myreactions_profile"
-	);
-	$settings = "'" . implode("','", $settings) . "'";
-	$db->delete_query("settings", "name IN ({$settings})");
-	
+
+	$db->delete_query("settings", "name LIKE 'myreactions_%'");
+
 	rebuild_settings();
-	
+
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
@@ -422,6 +415,6 @@ function myreactions_do_deactivate()
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{myreactions}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
-	
-	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile','myreactions_reacted_button','myreactions_reacted','myreactions_reacted_row_grouped','myreactions_reacted_row_linear','myreactions_reacted_row_user')");
+
+	$db->delete_query("templates", "title LIKE 'myreactions_%'");
 }
