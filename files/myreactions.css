@@ -1,5 +1,5 @@
 .myreactions-container {
-  padding: 5px 10px 5px 5px;
+  padding: 5px 5px 5px 5px;
   border-top: 1px solid #ccc;
   border-bottom: 1px dotted #ccc;
 }
@@ -44,8 +44,14 @@
   float: left;
   cursor: pointer;
 }
+.reaction-add {
+  margin: 2px;
+}
 .reaction-add span {
   display: none;
+}
+.myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-add {
+  margin-left: 10px;
 }
 .myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-add + .reaction-reacted {
   margin: 2px;
