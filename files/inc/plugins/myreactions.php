@@ -257,7 +257,7 @@ function myreactions_postbit(&$post)
 		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 	}
 
-	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['pid'].', \'received\');"><strong>'.$post['reactions_received'].'</strong></a>').'<br />'.$lang->sprintf($lang->myreactions_given_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['pid'].', \'given\');"><strong>'.$post['reactions_given'].'</strong></a>'), $post['user_details']);
+	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['uid'].', \'received\');"><strong>'.$post['reactions_received'].'</strong></a>').'<br />'.$lang->sprintf($lang->myreactions_given_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['uid'].', \'given\');"><strong>'.$post['reactions_given'].'</strong></a>'), $post['user_details']);
 }
 
 function myreactions_misc()
