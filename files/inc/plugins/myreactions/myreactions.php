@@ -287,7 +287,7 @@ linear=Linear",
 		<td class=\"thead\"><strong>{\$lang->myreactions_profile_header}</strong></td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_top_received}<span class=\"float_right\">{\$lang->myreactions_received} <a href=\"javascriot:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']}, 'received');\">{\$lang->myreactions_view_all}</a></span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_received}<span class=\"float_right\">{\$lang->myreactions_received} <a href=\"javascript:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']}, 'received');\">{\$lang->myreactions_view_all}</a></span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
@@ -297,7 +297,7 @@ linear=Linear",
 		</td>
 	</tr>
 	<tr>
-		<td class=\"tcat\">{\$lang->myreactions_profile_top_given}<span class=\"float_right\">{\$lang->myreactions_given} <a href=\"javascriot:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']}, 'given');\">{\$lang->myreactions_view_all}</a></span></td>
+		<td class=\"tcat\">{\$lang->myreactions_profile_top_given}<span class=\"float_right\">{\$lang->myreactions_given} <a href=\"javascript:void(0)\" onclick=\"MyReactions.reactedUser({\$memprofile['uid']}, 'given');\">{\$lang->myreactions_view_all}</a></span></td>
 	</tr>
 	<tr>
 		<td class=\"trow1\" align=\"left\">
