@@ -1,5 +1,5 @@
 .myreactions-container {
-  padding: 5px 10px 5px 5px;
+  padding: 5px 5px 5px 5px;
   border-top: 1px solid #ccc;
   border-bottom: 1px dotted #ccc;
 }
@@ -47,11 +47,20 @@
 .reaction-add span {
   display: none;
 }
-.myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-add + .reaction-reacted {
-  margin: 2px;
+.myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-reacted {
+  margin: 2px 2px 0px 10px;
 }
-.myreactions-reactions + .reaction-add, .myreactions-reactions + .reaction-add + .reaction-reacted {
-  margin-right: 5px;  
+.myreactions-reactions + .reaction-add, .myreactions-reactions + .reaction-reacted {
+  margin: 0px 2px 0px 5px;
+}
+.myreactions-reaction + .reaction-add + .reaction-reacted {
+  margin-top: 2px;
+}
+.myreactions-reactions + .reaction-add + .reaction-reacted {
+  margin-top: 0;
+}
+.reaction-add + .reaction-reacted {
+  margin-left: 2px;
 }
 .myreactions-container:hover .reaction-hover-show, .reaction-add.reaction-add-force, .reaction-add.reaction-add-force span {
   display: inline-block;
@@ -84,10 +93,10 @@
     filter: grayscale(100%);
 }
 .myreactions-post-reacted .myreactions_reacted_row_hidden {
-  display: none;  
+  display: none;
 }
 .myreactions-post-reacted label {
-  cursor: pointer;  
+  cursor: pointer;
 }
 
 /* Reaction image sizes */
