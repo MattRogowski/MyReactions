@@ -312,7 +312,7 @@ linear=Linear",
 	$templates[] = array(
 		"title" => "myreactions_reacted_button",
 		"template" => "<div class=\"myreactions-reaction reaction-reacted reaction-hover-show\" onclick=\"MyReactions.reactedPost('{\$post['pid']}');\">
-  <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted_button}</span>
+  <img src=\"{\$mybb->settings['bburl']}/images/reactions/thumbsup.png\" /> <span>{\$lang->myreactions_who_reacted_button} ({\$reacted_count})</span>
 </div>"
 	);
 	$templates[] = array(

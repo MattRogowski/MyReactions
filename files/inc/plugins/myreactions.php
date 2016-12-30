@@ -174,6 +174,7 @@ function myreactions_postbit(&$post)
 	{
 		$mybb->settings['myreactions_type'] = $mybb->input['myreactions_type'];
 	}
+	$reacted_count = count($received_reactions);
 	switch($mybb->settings['myreactions_type'])
 	{
 		case 'linear':
@@ -209,6 +210,7 @@ function myreactions_postbit(&$post)
 			}
 			break;
 		case 'grouped':
+			$reacted_count = 0;
 			$grouped_reactions = array();
 			foreach($received_reactions as $received_reaction)
 			{
@@ -247,6 +249,7 @@ function myreactions_postbit(&$post)
 			}
 			if($grouped_reactions)
 			{
+				$reacted_count = count($received_reactions);
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reacted_button')."\";");
 			}
 			break;
