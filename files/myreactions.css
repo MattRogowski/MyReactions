@@ -14,14 +14,23 @@
   border-radius: 6px;
   color: #555;
 }
+.myreactions-reaction.myreactions-reacted {
+  border: 2px solid #8bc34a;
+}
 .myreactions-reactions:hover, .myreactions-reaction:hover {
   border: 1px solid #aaa;
 }
+.myreactions-reaction.myreactions-reacted:hover {
+  border: 2px solid #f44336;
+}
 .myreactions-reaction {
   display: inline-block;
-  margin: 2px;
+  margin: 3px 2px;
   padding: 5px;
   float: left;
+}
+.myreactions-reaction.myreactions-reacted {
+    margin: 2px;
 }
 .myreactions-reactions {
   float: left;
@@ -48,13 +57,13 @@
   display: none;
 }
 .myreactions-reaction + .reaction-add, .myreactions-reaction + .reaction-reacted {
-  margin: 2px 2px 0px 10px;
+  margin: 3px 2px 0px 10px;
 }
 .myreactions-reactions + .reaction-add, .myreactions-reactions + .reaction-reacted {
   margin: 0px 2px 0px 5px;
 }
 .myreactions-reaction + .reaction-add + .reaction-reacted {
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .myreactions-reactions + .reaction-add + .reaction-reacted {
   margin-top: 0;
