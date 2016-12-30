@@ -44,56 +44,56 @@ $templatelist .= ',myreactions_container,myreactions_reactions,myreactions_react
 function myreactions_info()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_info();
 }
 
 function myreactions_install()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_install();
 }
 
 function myreactions_is_installed()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_is_installed();
 }
 
 function myreactions_uninstall()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_uninstall();
 }
 
 function myreactions_db_changes()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_db_changes();
 }
 
 function myreactions_activate()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_activate();
 }
 
 function myreactions_deactivate()
 {
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
-	
+
 	return myreactions_do_deactivate();
 }
 
 function myreactions_cache()
 {
 	global $db, $cache;
-	
+
 	$query = $db->simple_select('myreactions');
 	$myreactions = array();
 	while($myreaction = $db->fetch_array($query))
@@ -257,7 +257,7 @@ function myreactions_postbit(&$post)
 		eval("\$post['myreactions'] = \"".$templates->get('myreactions_container')."\";");
 	}
 
-	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, $post['reactions_received']).'<br />'.$lang->sprintf($lang->myreactions_given_postbit, $post['reactions_given']), $post['user_details']);
+	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['pid'].', \'received\');"><strong>'.$post['reactions_received'].'</strong></a>').'<br />'.$lang->sprintf($lang->myreactions_given_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['pid'].', \'given\');"><strong>'.$post['reactions_given'].'</strong></a>'), $post['user_details']);
 }
 
 function myreactions_misc()
@@ -287,7 +287,7 @@ function myreactions_misc()
 		}
 
 		$reactions = $favourite_reactions = '';
-		
+
 		$has_favourites = false;
 		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc', 'limit' => 10));
 		while($favourite_reaction = $db->fetch_array($query))
@@ -305,7 +305,7 @@ function myreactions_misc()
 			}
 			$title = ' title="'.$reaction['reaction_name'].'"';
 			eval("\$favourite_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
-			
+
 		}
 		if($has_favourites)
 		{
@@ -340,7 +340,7 @@ function myreactions_misc()
 		$post = get_post($mybb->input['pid']);
 
 		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
-		
+
 		if($post['uid'] == $mybb->user['uid'])
 		{
 			error($lang->myreactions_error_own_post);
@@ -606,11 +606,11 @@ function myreactions_recount_given($uid)
 function myreactions_admin_forum_menu($sub_menu)
 {
 	global $lang;
-	
+
 	$lang->load("forum_myreactions");
-	
+
 	$sub_menu[] = array("id" => "myreactions", "title" => $lang->myreactions, "link" => "index.php?module=forum-myreactions");
-	
+
 	return $sub_menu;
 }
 
@@ -620,17 +620,17 @@ function myreactions_admin_forum_action_handler($actions)
 		"active" => "myreactions",
 		"file" => "myreactions.php"
 	);
-	
+
 	return $actions;
 }
 
 function myreactions_admin_forum_permissions($admin_permissions)
 {
 	global $lang;
-	
+
 	$lang->load("forum_myreactions");
-	
+
 	$admin_permissions['myreactions'] = $lang->can_manage_myreactions;
-	
+
 	return $admin_permissions;
 }
