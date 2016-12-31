@@ -78,6 +78,10 @@ if($mybb->input['action'] == "add")
 		'title' => $lang->mass_edit,
 		'link' => "index.php?module=forum-myreactions&amp;action=mass_edit"
 	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import"
+	);
 
 	$page->output_nav_tabs($sub_tabs, 'add_reaction');
 	$form = new Form("index.php?module=forum-myreactions&amp;action=add", "post", "add");
@@ -303,6 +307,10 @@ if($mybb->input['action'] == "add_multiple")
 					'title' => $lang->mass_edit,
 					'link' => "index.php?module=forum-myreactions&amp;action=mass_edit"
 				);
+				$sub_tabs['import'] = array(
+					'title' => $lang->import,
+					'link' => "index.php?module=forum-myreactions&amp;action=import"
+				);
 
 				$page->output_nav_tabs($sub_tabs, 'add_multiple_reactions');
 				$form = new Form("index.php?module=forum-myreactions&amp;action=add_multiple", "post", "add_multiple");
@@ -397,6 +405,10 @@ if($mybb->input['action'] == "add_multiple")
 		'title' => $lang->mass_edit,
 		'link' => "index.php?module=forum-myreactions&amp;action=mass_edit"
 	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import"
+	);
 
 	$page->output_nav_tabs($sub_tabs, 'add_multiple_reactions');
 	$form = new Form("index.php?module=forum-myreactions&amp;action=add_multiple", "post", "add_multiple");
@@ -468,6 +480,10 @@ if($mybb->input['action'] == "mass_edit")
 		'title' => $lang->mass_edit,
 		'link' => "index.php?module=forum-myreactions&amp;action=mass_edit",
 		'description' => $lang->mass_edit_desc
+	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import"
 	);
 
 	$page->output_nav_tabs($sub_tabs, 'mass_edit');
@@ -544,6 +560,10 @@ if(!$mybb->input['action'])
 		'title' => $lang->mass_edit,
 		'link' => "index.php?module=forum-myreactions&amp;action=mass_edit",
 	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import"
+	);
 
 	$page->output_nav_tabs($sub_tabs, 'manage_reactions');
 
@@ -602,6 +622,145 @@ if(!$mybb->input['action'])
 	$total_rows = $db->fetch_field($query, "myreactions");
 
 	echo "<br />".draw_admin_pagination($pagenum, "20", $total_rows, "index.php?module=forum-myreactions&amp;page={page}");
+
+	$page->output_footer();
+}
+
+
+
+if($mybb->input['action'] == 'import')
+{
+	$errors = array();
+
+	if($mybb->request_method == 'post')
+	{
+		if(!$mybb->input['plugin'])
+		{
+			$errors[] = $lang->import_error_no_plugin;
+		}
+		if(!$mybb->input['reaction'])
+		{
+			$errors[] = $lang->import_error_no_reaction;
+		}
+		$missing_data = false;
+		switch($mybb->input['plugin'])
+		{
+			case 'mylikes':
+				if(!$cache->read('mylikes'))
+				{
+					$errors[] = $lang->import_error_plugin_missing_data.' '.$lang->sprintf($lang->import_error_plugin_missing_data_cache, 'mylikes');
+				}
+				break;
+			case 'simplelikes':
+				if(!$db->table_exists('post_likes'))
+				{
+					$errors[] = $lang->import_error_plugin_missing_data.' '.$lang->sprintf($lang->import_error_plugin_missing_data_database, TABLE_PREFIX, 'post_likes');
+				}
+				break;
+			case 'thankyoulike':
+				if(!$db->table_exists('g33k_thankyoulike_thankyoulike'))
+				{
+					$errors[] = $lang->import_error_plugin_missing_data.' '.$lang->sprintf($lang->import_error_plugin_missing_data_database, TABLE_PREFIX, 'g33k_thankyoulike_thankyoulike');
+				}
+				break;
+			case 'thx':
+				if(!$db->table_exists('thx'))
+				{
+					$errors[] = $lang->import_error_plugin_missing_data.' '.$lang->sprintf($lang->import_error_plugin_missing_data_database, TABLE_PREFIX, 'thx');
+				}
+				break;
+		}
+	}
+
+	$page->add_breadcrumb_item($lang->import);
+	$page->output_header($lang->myreactions." - ".$lang->import);
+
+	$sub_tabs['manage_reactions'] = array(
+		'title' => $lang->manage_reactions,
+		'link' => "index.php?module=forum-myreactions",
+		'description' => $lang->manage_reactions_desc
+	);
+	$sub_tabs['add_reaction'] = array(
+		'title' => $lang->add_reaction,
+		'link' => "index.php?module=forum-myreactions&amp;action=add",
+	);
+	$sub_tabs['add_multiple_reactions'] = array(
+		'title' => $lang->add_multiple_reactions,
+		'link' => "index.php?module=forum-myreactions&amp;action=add_multiple",
+	);
+	$sub_tabs['mass_edit'] = array(
+		'title' => $lang->mass_edit,
+		'link' => "index.php?module=forum-myreactions&amp;action=mass_edit",
+	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import",
+		'description' => $lang->import_desc
+	);
+
+	$page->output_nav_tabs($sub_tabs, 'import');
+
+	$form = new Form("index.php?module=forum-myreactions&amp;action=import", "post", "import");
+	echo $form->generate_hidden_field("step", "1");
+
+	if($errors)
+	{
+		$page->output_inline_error($errors);
+	}
+
+	$form_container = new FormContainer($lang->import);
+
+	$source_plugins = array(
+		'',
+		'mylikes' => 'MyLikes (mylikes.php)',
+		'simplelikes' => 'Like System/SimpleLikes (simplelikes.php)',
+		'thankyoulike' => 'Thank You/Like System (thankyoulike.php)',
+		'thx' => 'Thanks, Thanks system (thx.php)',
+	);
+
+	$form_container->output_row($lang->import_plugin, $lang->import_plugin_desc, $form->generate_select_box('plugin', $source_plugins, $mybb->input['plugin']), 'plugin');
+
+	$reaction_names = array('' => '');
+	$reaction_images = array();
+	$all_reactions = $cache->read('myreactions');
+	foreach($all_reactions as $reaction)
+	{
+		$reaction_names[$reaction['reaction_id']] = $reaction['reaction_name'];
+		$reaction_images[] = '<img src="../'.$reaction['reaction_image'].'" data-image="'.$reaction['reaction_id'].'" width="32" height="32"'.($reaction['reaction_id'] == $mybb->input['reaction']?' class="active"':'').' />';
+	}
+
+	$form_container->output_row($lang->import_reaction, $lang->import_reaction_desc, '<div id="reaction_images">'.implode('', $reaction_images).'</div>', 'reaction');
+
+	$form_container->end();
+
+	echo $form->generate_hidden_field('reaction', $mybb->input['reaction'], array('id' => 'reaction'));
+	$buttons[] = $form->generate_submit_button($lang->import_start);
+
+	$form->output_submit_wrapper($buttons);
+	$form->end();
+
+	echo "<style>
+	#reaction_images img {
+		margin: 5px;
+		opacity: 0.1;
+		cursor: pointer;
+	}
+	#reaction_images:hover img {
+		opacity: 0.25;
+	}
+	#reaction_images img:hover, #reaction_images img.active {
+		opacity: 1;
+	}
+	</style>
+	<script>
+	$(function() {
+		$('#reaction_images img').click(function() {
+			$('#reaction_images img').removeClass('active');
+			$(this).addClass('active');
+			$('#reaction').val($(this).data('image'));
+		})
+	});
+	</script>";
 
 	$page->output_footer();
 }

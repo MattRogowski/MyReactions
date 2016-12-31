@@ -63,3 +63,19 @@ $l['success_reaction_deleted'] = "The selected reaction has been deleted success
 $l['success_mass_edit_updated'] = "The reactions have been updated successfully.";
 
 $l['confirm_reaction_deletion'] = "Are you sure you wish to delete this reaction?";
+
+
+
+$l['import'] = 'Import Data';
+$l['import_reactions_data'] = 'Import MyReactions Data';
+$l['import_desc'] = 'Import data from other \'thank you\' or \'like\' plugins into MyReactions';
+$l['import_plugin'] = 'Source Plugin';
+$l['import_plugin_desc'] = 'Select the plugin you would like to import data from';
+$l['import_reaction'] = 'Reaction';
+$l['import_reaction_desc'] = 'Click a reaction to convert likes/thanks to. For every like/thanks a post has received, it will be replaced with this reaction';
+$l['import_start'] = 'Start Import';
+$l['import_error_no_plugin'] = 'Please select which plugin you are importing from';
+$l['import_error_no_reaction'] = 'Please select a reaction to import to';
+$l['import_error_plugin_missing_data'] = 'Data cannot be imported from this plugin. Reason:';
+$l['import_error_plugin_missing_data_cache'] = 'The <strong>{1}</strong> cache object seems to be missing';
+$l['import_error_plugin_missing_data_database'] = 'The table <strong>{1}{2}</strong> seems to be missing';
