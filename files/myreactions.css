@@ -45,6 +45,9 @@
   float: left;
   display: inline-block;
 }
+.myreactions-forumdisplay-thread img {
+    margin: 2px;
+}
 
 /* Add Reaction, Reacted, Hovers */
 .reaction-hover-show {

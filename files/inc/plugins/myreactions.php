@@ -38,6 +38,7 @@ $plugins->add_hook('misc_start', 'myreactions_misc');
 $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
 $plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
+$plugins->add_hook("admin_page_output_footer", "myreactions_settings_footer");
 
 global $templatelist;
 $templatelist .= ',myreactions_container,myreactions_reactions,myreactions_reaction,myreactions_reaction_image,myreactions_add,myreactions_react,myreactions_react_favourites,myreactions_profile,myreactions_reacted_button,myreactions_reacted,myreactions_reacted_row_grouped,myreactions_reacted_row_linear,myreactions_reacted_row_user';
@@ -519,22 +520,40 @@ function myreactions_misc()
 
 function myreactions_forumdisplay()
 {
-	global $db, $thread, $threadcache, $all_thread_reactions;
+	global $mybb, $db, $templates, $thread, $threadcache, $all_thread_reactions;
+
+	if(!$mybb->settings['myreactions_forumdisplay'])
+	{
+		return;
+	}
 
 	if(!$all_thread_reactions)
 	{
+		$limit = $mybb->settings['myreactions_forumdisplay_count'];
+		if(!$limit || !is_numeric($limit) || $limit <= 0)
+		{
+			$limit = 10;
+		}
+		$where = '';
+		if($mybb->settings['myreactions_forumdisplay_type'] == 'post')
+		{
+			$where = ' AND t.firstpost = p.pid';
+		}
+
 		$all_thread_reactions = $tids = array();
 		foreach($threadcache as $t)
 		{
 			$tids[] = $t['tid'];
 		}
 		$query = $db->write_query('
-			SELECT '.TABLE_PREFIX.'myreactions.*, tid, count(post_reaction_id) AS count
-			FROM '.TABLE_PREFIX.'myreactions
-			JOIN '.TABLE_PREFIX.'post_reactions ON post_reaction_rid = reaction_id
-			JOIN '.TABLE_PREFIX.'posts on pid = post_reaction_pid
-			WHERE tid IN('.implode(',', $tids).')
-			GROUP BY tid, reaction_id ORDER BY tid ASC, count DESC, post_reaction_date ASC
+			SELECT r.*, t.tid, count(post_reaction_id) AS count
+			FROM '.TABLE_PREFIX.'myreactions r
+			JOIN '.TABLE_PREFIX.'post_reactions pr ON pr.post_reaction_rid = r.reaction_id
+			JOIN '.TABLE_PREFIX.'posts p on p.pid = pr.post_reaction_pid
+			JOIN '.TABLE_PREFIX.'threads t on t.tid = p.tid
+			WHERE t.tid IN('.implode(',', $tids).')
+			'.$where.'
+			GROUP BY t.tid, reaction_id ORDER BY t.tid ASC, count DESC, pr.post_reaction_date ASC
 		');
 		while($reaction = $db->fetch_array($query))
 		{
@@ -542,7 +561,7 @@ function myreactions_forumdisplay()
 			{
 				$all_thread_reactions[$reaction['tid']] = array();
 			}
-			if(count($all_thread_reactions[$reaction['tid']]) == 10)
+			if(count($all_thread_reactions[$reaction['tid']]) == $limit)
 			{
 				continue;
 			}
@@ -553,10 +572,12 @@ function myreactions_forumdisplay()
 	$thread['reactions'] = '';
 	if(array_key_exists($thread['tid'], $all_thread_reactions))
 	{
+		$thread_reaction_images = '';
 		foreach($all_thread_reactions[$thread['tid']] as $reaction)
 		{
-			$thread['reactions'] .= '<img src="'.$reaction['reaction_image'].'" width="16" height="16" />';
+			$thread_reaction_images .= '<img src="'.$reaction['reaction_image'].'" width="16" height="16" />';
 		}
+		eval("\$thread['reactions'] = \"".$templates->get('myreactions_forumdisplay_thread')."\";");
 	}
 }
 
@@ -702,4 +723,24 @@ function myreactions_admin_forum_permissions($admin_permissions)
 	$admin_permissions['myreactions'] = $lang->can_manage_myreactions;
 
 	return $admin_permissions;
+}
+
+function myreactions_settings_footer()
+{
+	global $mybb, $db;
+	// we're viewing the form to change settings but not submitting it
+	if($mybb->input["action"] == "change" && $mybb->request_method != "post")
+	{
+		$query = $db->simple_select('settinggroups', 'gid', 'name = \'myreactions\'');
+		$gid = $db->fetch_field($query, 'gid');
+		// if the settings group we're editing is the same as the gid for the MySupport group, or there's no gid (viewing all settings), echo the peekers
+		if($mybb->input["gid"] == $gid || !$mybb->input['gid'])
+		{
+			echo '<script type="text/javascript">
+			jQuery(document).ready(function() {
+				new Peeker($(".setting_myreactions_forumdisplay"), $("#row_setting_myreactions_forumdisplay_type, #row_setting_myreactions_forumdisplay_count"), 1, true)
+			});
+			</script>';
+		}
+	}
 }

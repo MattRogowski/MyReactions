@@ -180,6 +180,29 @@ linear=Linear",
 		"value" => "1"
 	);
 	$settings[] = array(
+		"name" => "myreactions_forumdisplay",
+		"title" => "Display on thread list",
+		"description" => "Display the top reactions from a thread on the forum display thread list",
+		"optionscode" => "yesno",
+		"value" => "1"
+	);
+	$settings[] = array(
+		"name" => "myreactions_forumdisplay_type",
+		"title" => "Thread list reaction source",
+		"description" => "Which reactions should be shown?",
+		"optionscode" => "radio
+post=Reactions given to first post
+thread=Reactions given in whole thread",
+		"value" => "post"
+	);
+	$settings[] = array(
+		"name" => "myreactions_forumdisplay_count",
+		"title" => "Thread list reaction count",
+		"description" => "How many top reactions should be shown?",
+		"optionscode" => "text",
+		"value" => "10"
+	);
+	$settings[] = array(
 		"name" => "myreactions_profile",
 		"title" => "Display on profiles",
 		"description" => "Display the most given and most received reactions on user profiles",
@@ -211,6 +234,7 @@ linear=Linear",
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{$post[\'replink\']}')."#i", '{$post[\'replink\']}{myreactions}');
+	find_replace_templatesets("forumdisplay_thread", "#".preg_quote('{$thread[\'profilelink\']}</div>')."#i", '{$thread[\'profilelink\']}</div><div>{$thread[\'reactions\']}</div>');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
 
 	$templates = array();
@@ -279,6 +303,12 @@ linear=Linear",
 		{\$favourite_reactions}
 	</td>
 </tr>"
+	);
+	$templates[] = array(
+		"title" => "myreactions_forumdisplay_thread",
+		"template" => "<div class=\"myreactions-forumdisplay-thread\">
+	{\$thread_reaction_images}
+</div>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_profile",
@@ -414,6 +444,7 @@ function myreactions_do_deactivate()
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_author_user", "#".preg_quote('{myreactions}')."#i", '', 0);
+	find_replace_templatesets("forumdisplay_thread", "#".preg_quote('<div>{$thread[\'reactions\']}</div>')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 
 	$db->delete_query("templates", "title LIKE 'myreactions_%'");
