@@ -32,8 +32,9 @@ define("MYREACTIONS_VERSION", "0.0.3");
 
 $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
-$plugins->add_hook('misc_start', 'myreactions_misc');
+$plugins->add_hook('forumdisplay_thread', 'myreactions_forumdisplay');
 $plugins->add_hook('member_profile_end', 'myreactions_profile');
+$plugins->add_hook('misc_start', 'myreactions_misc');
 $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
 $plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
@@ -513,6 +514,49 @@ function myreactions_misc()
 		eval("\$reacted = \"".$templates->get('myreactions_reacted', 1, 0)."\";");
 		echo $reacted;
 		exit;
+	}
+}
+
+function myreactions_forumdisplay()
+{
+	global $db, $thread, $threadcache, $all_thread_reactions;
+
+	if(!$all_thread_reactions)
+	{
+		$all_thread_reactions = $tids = array();
+		foreach($threadcache as $t)
+		{
+			$tids[] = $t['tid'];
+		}
+		$query = $db->write_query('
+			SELECT '.TABLE_PREFIX.'myreactions.*, tid, count(post_reaction_id) AS count
+			FROM '.TABLE_PREFIX.'myreactions
+			JOIN '.TABLE_PREFIX.'post_reactions ON post_reaction_rid = reaction_id
+			JOIN '.TABLE_PREFIX.'posts on pid = post_reaction_pid
+			WHERE tid IN('.implode(',', $tids).')
+			GROUP BY tid, reaction_id ORDER BY tid ASC, count DESC, post_reaction_date ASC
+		');
+		while($reaction = $db->fetch_array($query))
+		{
+			if(!array_key_exists($reaction['tid'], $all_thread_reactions))
+			{
+				$all_thread_reactions[$reaction['tid']] = array();
+			}
+			if(count($all_thread_reactions[$reaction['tid']]) == 10)
+			{
+				continue;
+			}
+			$all_thread_reactions[$reaction['tid']][] = $reaction;
+		}
+	}
+
+	$thread['reactions'] = '';
+	if(array_key_exists($thread['tid'], $all_thread_reactions))
+	{
+		foreach($all_thread_reactions[$thread['tid']] as $reaction)
+		{
+			$thread['reactions'] .= '<img src="'.$reaction['reaction_image'].'" width="16" height="16" />';
+		}
 	}
 }
 
