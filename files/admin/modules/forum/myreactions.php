@@ -664,7 +664,21 @@ if($mybb->input['action'] == 'do_import')
 				}
 				break;
 			case 'simplelikes':
+				$likes = $db->simple_select('post_likes');
+				foreach($likes as $like)
+				{
+					$reaction_uids[$like['user_id']] = $like['user_id'];
+					$post_info = get_post($like['post_id']);
+					$post_uids[$post_info['uid']] = $post_info['uid'];
 
+					$data = array(
+						'post_reaction_pid' => $like['post_id'],
+						'post_reaction_rid' => $mybb->input['reaction'],
+						'post_reaction_uid' => $like['user_id'],
+						'post_reaction_date' => strtotime($like['created_at']),
+					);
+					myreactions_process_import_insert($data);
+				}
 				break;
 			case 'thankyoulike':
 
@@ -732,7 +746,13 @@ if($mybb->input['action'] == 'do_import')
 			}
 			break;
 		case 'simplelikes':
-
+			$likes = $db->simple_select('post_likes');
+			foreach($likes as $like)
+			{
+				$done_posts[$like['post_id']] = $like['post_id'];
+				$done_users[$like['user_id']] = $like['user_id'];
+				$reaction_count++;
+			}
 			break;
 		case 'thankyoulike':
 
