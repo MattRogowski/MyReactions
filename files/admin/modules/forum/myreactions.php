@@ -628,7 +628,135 @@ if(!$mybb->input['action'])
 
 
 
-if($mybb->input['action'] == 'import')
+$all_reactions = $cache->read('myreactions');
+$other_plugins = array(
+	'',
+	'mylikes' => 'MyLikes (mylikes.php)',
+	'simplelikes' => 'Like System/SimpleLikes (simplelikes.php)',
+	'thankyoulike' => 'Thank You/Like System (thankyoulike.php)',
+	'thx' => 'Thanks, Thanks system (thx.php)',
+);
+if($mybb->input['action'] == 'do_import')
+{
+	if($mybb->request_method == 'post')
+	{
+		$reaction_uids = $post_uids = array();
+
+		switch($mybb->input['plugin'])
+		{
+			case 'mylikes':
+				$mylikes = $cache->read('mylikes');
+				foreach($mylikes as $pid => $uids)
+				{
+					foreach($uids as $uid)
+					{
+						$reaction_uids[$uid] = $uid;
+						$post_info = get_post($pid);
+						$post_uids[$post_info['uid']] = $post_info['uid'];
+
+						$insert = array(
+							'post_reaction_pid' => $pid,
+							'post_reaction_rid' => $mybb->input['reaction'],
+							'post_reaction_uid' => $uid,
+							'post_reaction_date' => TIME_NOW,
+						);
+						$db->insert_query('post_reactions', $insert);
+					}
+				}
+				break;
+			case 'simplelikes':
+
+				break;
+			case 'thankyoulike':
+
+				break;
+			case 'thx':
+
+				break;
+		}
+
+		$uids = array_unique(array_merge($reaction_uids,$post_uids));
+		foreach($uids as $uid)
+		{
+			myreactions_recount_received($uid);
+			myreactions_recount_given($uid);
+		}
+
+		flash_message($lang->import_success, 'success');
+		admin_redirect("index.php?module=forum-myreactions");
+	}
+
+	$page->add_breadcrumb_item($lang->import);
+	$page->output_header($lang->myreactions." - ".$lang->import);
+
+	$sub_tabs['manage_reactions'] = array(
+		'title' => $lang->manage_reactions,
+		'link' => "index.php?module=forum-myreactions",
+		'description' => $lang->manage_reactions_desc
+	);
+	$sub_tabs['import'] = array(
+		'title' => $lang->import,
+		'link' => "index.php?module=forum-myreactions&amp;action=import",
+		'description' => $lang->import_desc
+	);
+
+	$page->output_nav_tabs($sub_tabs, 'import');
+
+	$form = new Form("index.php?module=forum-myreactions&amp;action=do_import", "post", "import");
+
+	if($errors)
+	{
+		$page->output_inline_error($errors);
+	}
+
+	$form_container = new FormContainer($lang->sprintf($lang->import_from, preg_replace('/\s\([a-z\.]+\)$/', '', $other_plugins[$mybb->input['plugin']])));
+
+	if($mybb->input['plugin'] == 'mylikes')
+	{
+		$form_container->output_row('', '', $lang->import_intro_mylikes);
+	}
+
+	$done_posts = $done_users = array();
+	$reaction_count = 0;
+	switch($mybb->input['plugin'])
+	{
+		case 'mylikes':
+			$mylikes = $cache->read('mylikes');
+			foreach($mylikes as $pid => $uids)
+			{
+				$done_posts[$pid] = $pid;
+				foreach($uids as $uid)
+				{
+					$done_users[$uid] = $uid;
+					$reaction_count++;
+				}
+			}
+			break;
+		case 'simplelikes':
+
+			break;
+		case 'thankyoulike':
+
+			break;
+		case 'thx':
+
+			break;
+	}
+
+	$form_container->output_row($lang->import_overview, '', $lang->sprintf($lang->import_overview_details, $reaction_count, count($done_users), count($done_posts)));
+
+	$form_container->end();
+
+	echo $form->generate_hidden_field('plugin', $mybb->input['plugin']);
+	echo $form->generate_hidden_field('reaction', $mybb->input['reaction']);
+	$buttons[] = $form->generate_submit_button($lang->import_start);
+
+	$form->output_submit_wrapper($buttons);
+	$form->end();
+
+	$page->output_footer();
+}
+elseif($mybb->input['action'] == 'import')
 {
 	$errors = array();
 
@@ -670,6 +798,10 @@ if($mybb->input['action'] == 'import')
 				}
 				break;
 		}
+		if(!$errors)
+		{
+			admin_redirect("index.php?module=forum-myreactions&action=do_import&plugin=".$mybb->input['plugin']."&reaction=".$mybb->input['reaction']);
+		}
 	}
 
 	$page->add_breadcrumb_item($lang->import);
@@ -701,7 +833,6 @@ if($mybb->input['action'] == 'import')
 	$page->output_nav_tabs($sub_tabs, 'import');
 
 	$form = new Form("index.php?module=forum-myreactions&amp;action=import", "post", "import");
-	echo $form->generate_hidden_field("step", "1");
 
 	if($errors)
 	{
@@ -710,31 +841,21 @@ if($mybb->input['action'] == 'import')
 
 	$form_container = new FormContainer($lang->import);
 
-	$source_plugins = array(
-		'',
-		'mylikes' => 'MyLikes (mylikes.php)',
-		'simplelikes' => 'Like System/SimpleLikes (simplelikes.php)',
-		'thankyoulike' => 'Thank You/Like System (thankyoulike.php)',
-		'thx' => 'Thanks, Thanks system (thx.php)',
-	);
-
-	$form_container->output_row($lang->import_plugin, $lang->import_plugin_desc, $form->generate_select_box('plugin', $source_plugins, $mybb->input['plugin']), 'plugin');
+	$form_container->output_row($lang->import_plugin, $lang->import_plugin_desc, $form->generate_select_box('plugin', $other_plugins, $mybb->input['plugin']), 'plugin');
 
 	$reaction_names = array('' => '');
 	$reaction_images = array();
-	$all_reactions = $cache->read('myreactions');
 	foreach($all_reactions as $reaction)
 	{
 		$reaction_names[$reaction['reaction_id']] = $reaction['reaction_name'];
 		$reaction_images[] = '<img src="../'.$reaction['reaction_image'].'" data-image="'.$reaction['reaction_id'].'" width="32" height="32"'.($reaction['reaction_id'] == $mybb->input['reaction']?' class="active"':'').' />';
 	}
-
 	$form_container->output_row($lang->import_reaction, $lang->import_reaction_desc, '<div id="reaction_images">'.implode('', $reaction_images).'</div>', 'reaction');
 
 	$form_container->end();
 
 	echo $form->generate_hidden_field('reaction', $mybb->input['reaction'], array('id' => 'reaction'));
-	$buttons[] = $form->generate_submit_button($lang->import_start);
+	$buttons[] = $form->generate_submit_button($lang->next);
 
 	$form->output_submit_wrapper($buttons);
 	$form->end();

@@ -67,6 +67,7 @@ $l['confirm_reaction_deletion'] = "Are you sure you wish to delete this reaction
 
 
 $l['import'] = 'Import Data';
+$l['import_from'] = 'Import Data from {1}';
 $l['import_reactions_data'] = 'Import MyReactions Data';
 $l['import_desc'] = 'Import data from other \'thank you\' or \'like\' plugins into MyReactions';
 $l['import_plugin'] = 'Source Plugin';
@@ -79,3 +80,7 @@ $l['import_error_no_reaction'] = 'Please select a reaction to import to';
 $l['import_error_plugin_missing_data'] = 'Data cannot be imported from this plugin. Reason:';
 $l['import_error_plugin_missing_data_cache'] = 'The <strong>{1}</strong> cache object seems to be missing';
 $l['import_error_plugin_missing_data_database'] = 'The table <strong>{1}{2}</strong> seems to be missing';
+$l['import_intro_mylikes'] = '<strong>Note:</strong> When using the MyLikes plugin, a \'like\' on a post adds a reputation to the post author; in other words, it uses the default MyBB reputation system, and doesn\'t add a separate \'like\' to the post. If you still want to add a reaction to every post that has been liked, the reputation that has already been given will <strong>not</strong> be removed.';
+$l['import_overview'] = 'Import Overview';
+$l['import_overview_details'] = 'You are going to import <strong>{1}</strong> reactions from <strong>{2}</strong> users into <strong>{3}</strong> posts';
+$l['import_success'] = 'The import has completed successfully.';
