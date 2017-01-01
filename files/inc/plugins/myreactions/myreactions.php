@@ -281,6 +281,7 @@ thread=Reactions given in whole thread",
 				<td class=\"trow1\">{\$post_preview}</td>
 			</tr>
 			{\$favourites}
+			{\$given_to_post}
 			<tr>
 				<td class=\"tcat\">{\$lang->myreactions_all}</td>
 			</tr>
@@ -294,13 +295,13 @@ thread=Reactions given in whole thread",
 </div>"
 	);
 	$templates[] = array(
-		"title" => "myreactions_react_favourites",
+		"title" => "myreactions_react_filtered",
 		"template" => "<tr>
-	<td class=\"tcat\">{\$lang->myreactions_favourites}</td>
+	<td class=\"tcat\">{\$title}</td>
 </tr>
 <tr>
 	<td class=\"trow1\" align=\"left\">
-		{\$favourite_reactions}
+		{\$filtered_reactions}
 	</td>
 </tr>"
 	);

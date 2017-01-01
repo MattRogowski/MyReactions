@@ -291,7 +291,7 @@ function myreactions_misc()
 			$post_preview = my_substr($post_preview, 0, 140).'...';
 		}
 
-		$reactions = $favourite_reactions = '';
+		$reactions = $favourite_reactions = $given_to_post_reactions = '';
 
 		$has_favourites = false;
 		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc', 'limit' => 10));
@@ -314,7 +314,35 @@ function myreactions_misc()
 		}
 		if($has_favourites)
 		{
-			eval("\$favourites = \"".$templates->get('myreactions_react_favourites', 1, 0)."\";");
+			$title = $lang->myreactions_favourites;
+			$filtered_reactions = $favourite_reactions;
+			eval("\$favourites = \"".$templates->get('myreactions_react_filtered', 1, 0)."\";");
+		}
+
+		$has_given_to_post = false;
+		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_pid = \''.$post['pid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc', 'limit' => 10));
+		while($favourite_reaction = $db->fetch_array($query))
+		{
+			$has_given_to_post = true;
+			$reaction = $all_reactions[$favourite_reaction['post_reaction_rid']];
+			$class = $onclick = '';
+			if(in_array($favourite_reaction['post_reaction_rid'], $given_reactions))
+			{
+				$class = ' class="disabled"';
+			}
+			else
+			{
+				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
+			}
+			$title = ' title="'.$reaction['reaction_name'].'"';
+			eval("\$given_to_post_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
+
+		}
+		if($has_given_to_post)
+		{
+			$title = $lang->myreactions_given_to_post;
+			$filtered_reactions = $given_to_post_reactions;
+			eval("\$given_to_post = \"".$templates->get('myreactions_react_filtered', 1, 0)."\";");
 		}
 
 		foreach($all_reactions as $reaction)
