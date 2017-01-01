@@ -95,7 +95,7 @@ function myreactions_do_db_changes()
 		  `reaction_name` varchar(255) NOT NULL,
 		  `reaction_image` varchar(255) NOT NULL,
 		  PRIMARY KEY (`reaction_id`)
-		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
+		) ENGINE=MyISAM DEFAULT CHARSET=latin1;');
 
 		$reactions = array("angry","anguished","awesome","balloon","broken_heart","clap","confounded","confused","crossed_fingers","disappointed","disappointed_relieved","disapproval","dizzy_face","expressionless","eyes","face_with_rolling_eyes","facepalm","fearful","fire","flushed","grimacing","grin","grinning","hear_no_evil","heart","heart_eyes","ill","information_desk_person","innocent","joy","laughing","mask","nerd_face","neutral_face","ok_hand","open_mouth","pensive","persevere","poop","pray","rage","raised_hands","rofl","scream","see_no_evil","shrug","sleeping","slightly_frowning_face","slightly_smiling_face","smile","smiling_imp","smirk","sob","speak_no_evil","star","stuck_out_tongue","stuck_out_tongue_closed_eyes","stuck_out_tongue_winking_eye","sunglasses","suspicious","sweat","sweat_smile","tada","thinking_face","thumbsdown","thumbsup","tired_face","triumph","unamused","upside_down_face","v","whatever","white_frowning_face","wink","worried","zipper_mouth_face");
 
@@ -120,7 +120,7 @@ function myreactions_do_db_changes()
 		  KEY `post_reaction_pid` (`post_reaction_pid`),
 		  KEY `post_reaction_rid` (`post_reaction_rid`),
 		  KEY `post_reaction_uid` (`post_reaction_uid`)
-		) ENGINE=InnoDB DEFAULT CHARSET=latin1;');
+		) ENGINE=MyISAM DEFAULT CHARSET=latin1;');
 	}
 	if(!$db->field_exists("reactions_received", "users"))
 	{
