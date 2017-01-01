@@ -681,7 +681,20 @@ if($mybb->input['action'] == 'do_import')
 				}
 				break;
 			case 'thankyoulike':
+				$thankyoulikes = $db->simple_select('g33k_thankyoulike_thankyoulike');
+				foreach($thankyoulikes as $thankyoulike)
+				{
+					$reaction_uids[$thankyoulike['uid']] = $thankyoulike['uid'];
+					$post_uids[$thankyoulike['puid']] = $thankyoulike['puid'];
 
+					$data = array(
+						'post_reaction_pid' => $thankyoulike['pid'],
+						'post_reaction_rid' => $mybb->input['reaction'],
+						'post_reaction_uid' => $thankyoulike['uid'],
+						'post_reaction_date' => $thankyoulike['dateline'],
+					);
+					myreactions_process_import_insert($data);
+				}
 				break;
 			case 'thx':
 
@@ -755,7 +768,13 @@ if($mybb->input['action'] == 'do_import')
 			}
 			break;
 		case 'thankyoulike':
-
+			$thankyoulikes = $db->simple_select('g33k_thankyoulike_thankyoulike');
+			foreach($thankyoulikes as $thankyoulike)
+			{
+				$done_posts[$thankyoulike['pid']] = $thankyoulike['pid'];
+				$done_users[$thankyoulike['uid']] = $thankyoulike['uid'];
+				$reaction_count++;
+			}
 			break;
 		case 'thx':
 
