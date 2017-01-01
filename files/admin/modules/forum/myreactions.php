@@ -654,13 +654,12 @@ if($mybb->input['action'] == 'do_import')
 						$post_info = get_post($pid);
 						$post_uids[$post_info['uid']] = $post_info['uid'];
 
-						$insert = array(
+						$data = array(
 							'post_reaction_pid' => $pid,
 							'post_reaction_rid' => $mybb->input['reaction'],
 							'post_reaction_uid' => $uid,
-							'post_reaction_date' => TIME_NOW,
 						);
-						$db->insert_query('post_reactions', $insert);
+						myreactions_process_import_insert($data);
 					}
 				}
 				break;
@@ -852,6 +851,8 @@ elseif($mybb->input['action'] == 'import')
 	}
 	$form_container->output_row($lang->import_reaction, $lang->import_reaction_desc, '<div id="reaction_images">'.implode('', $reaction_images).'</div>', 'reaction');
 
+	$form_container->output_row('', '', $lang->import_warning_desc);
+
 	$form_container->end();
 
 	echo $form->generate_hidden_field('reaction', $mybb->input['reaction'], array('id' => 'reaction'));
@@ -884,4 +885,25 @@ elseif($mybb->input['action'] == 'import')
 	</script>";
 
 	$page->output_footer();
+}
+
+function myreactions_process_import_insert($data)
+{
+	global $db;
+
+	$delete_where = array();
+	foreach($data as $field => $val)
+	{
+		if($field == 'post_reaction_date')
+		{
+			continue;
+		}
+		$delete_where[] = $field.' = '.$val;
+	}
+	$db->delete_query('post_reactions', implode(' AND ', $delete_where));
+	if(!array_key_exists('post_reaction_date', $data))
+	{
+		$data['post_reaction_date'] = TIME_NOW;
+	}
+	$db->insert_query('post_reactions', $data);
 }
