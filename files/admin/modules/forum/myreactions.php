@@ -697,7 +697,20 @@ if($mybb->input['action'] == 'do_import')
 				}
 				break;
 			case 'thx':
+				$thxs = $db->simple_select('thx');
+				foreach($thxs as $thx)
+				{
+					$reaction_uids[$thx['adduid']] = $thx['adduid'];
+					$post_uids[$thx['uid']] = $thx['uid'];
 
+					$data = array(
+						'post_reaction_pid' => $thx['pid'],
+						'post_reaction_rid' => $mybb->input['reaction'],
+						'post_reaction_uid' => $thx['adduid'],
+						'post_reaction_date' => $thx['time'],
+					);
+					myreactions_process_import_insert($data);
+				}
 				break;
 		}
 
@@ -777,7 +790,13 @@ if($mybb->input['action'] == 'do_import')
 			}
 			break;
 		case 'thx':
-
+			$thxs = $db->simple_select('thx');
+			foreach($thxs as $thx)
+			{
+				$done_posts[$thx['pid']] = $thx['pid'];
+				$done_users[$thx['adduid']] = $thx['adduid'];
+				$reaction_count++;
+			}
 			break;
 	}
 
