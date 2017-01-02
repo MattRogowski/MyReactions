@@ -34,6 +34,7 @@ $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
 $plugins->add_hook('forumdisplay_thread', 'myreactions_forumdisplay');
 $plugins->add_hook('member_profile_end', 'myreactions_profile');
+$plugins->add_hook('stats_end', 'myreactions_stats');
 $plugins->add_hook('misc_start', 'myreactions_misc');
 $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
@@ -281,6 +282,44 @@ function myreactions_postbit(&$post, $faked = false)
 	}
 
 	$post['user_details'] = str_replace('{myreactions}', '<br />'.$lang->sprintf($lang->myreactions_received_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['uid'].', \'received\');"><strong>'.$post['reactions_received'].'</strong></a>').'<br />'.$lang->sprintf($lang->myreactions_given_postbit, '<a href="javascript:void(0)" onclick="MyReactions.reactedUser('.$post['uid'].', \'given\');"><strong>'.$post['reactions_given'].'</strong></a>'), $post['user_details']);
+}
+
+function myreactions_stats()
+{return;
+	global $db;
+
+	$query = $db->query('
+		SELECT count(distinct(pr.post_reaction_uid)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+	');
+	$reactions_total_users = $db->fetch_field($query, 'count');
+
+	$query = $db->query('
+		SELECT count(distinct(pr.post_reaction_id)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+	');
+	$reactions_total_given = $db->fetch_field($query, 'count');
+
+	$query = $db->query('
+		SELECT count(distinct(pr.post_reaction_pid)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+	');
+	$reactions_total_posts = $db->fetch_field($query, 'count');
+
+	$query = $db->query('
+		SELECT count(distinct(p.uid)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+	');
+	$reactions_total_post_users = $db->fetch_field($query, 'count');
+
+	var_dump($reactions_total_users);
+	var_dump($reactions_total_given);
+	var_dump($reactions_total_posts);
+	var_dump($reactions_total_posts);
 }
 
 function myreactions_misc()
