@@ -82,6 +82,16 @@ function myreactions_do_uninstall()
 	}
 
 	$db->delete_query('datacache', 'title = \'myreactions\'');
+
+	if($db->table_exists('alerts') && $db->table_exists('alert_types'))
+	{
+		$myalerts_type_id = myreactions_myalerts_type_id();
+		if($myalerts_type_id)
+		{
+			$db->delete_query('alerts', 'alert_type_id = '.$myalerts_type_id);
+			$db->delete_query('alert_types', 'id = '.$myalerts_type_id);
+		}
+	}
 }
 
 function myreactions_do_db_changes()
@@ -208,6 +218,13 @@ thread=Reactions given in whole thread",
 		"description" => "Display the most given and most received reactions on user profiles",
 		"optionscode" => "yesno",
 		"value" => "1"
+	);
+	$settings[] = array(
+		"name" => "myreactions_enable_myalerts",
+		"title" => "Enable MyAlerts integration",
+		"description" => "If installed, you can enable sending alerts when users receive a reaction. If you enable this setting and MyAlerts is not running, the setting will automatically be changed back to 'No'",
+		"optionscode" => "yesno",
+		"value" => "0"
 	);
 	$i = 1;
 	foreach($settings as $setting)
@@ -449,4 +466,30 @@ function myreactions_do_deactivate()
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
 
 	$db->delete_query("templates", "title LIKE 'myreactions_%'");
+}
+
+function myreactions_do_settings()
+{
+	global $mybb, $db, $cache, $lang;
+
+	if($mybb->request_method != 'post')
+	{
+		return;
+	}
+
+	if(array_key_exists('myreactions_enable_myalerts', $mybb->input['upsetting']) && $mybb->input['upsetting']['myreactions_enable_myalerts'] == 1)
+	{
+		$plugins = $cache->read('plugins');
+		if(!isset($plugins['active']['myalerts']))
+		{
+			$mybb->input['upsetting']['myreactions_enable_myalerts'] = 0;
+		}
+		else
+		{
+			if(!myreactions_myalerts_type_id())
+			{
+				$db->insert_query('alert_types', array('code' => 'myreactions_received_reaction', 'enabled' => 1, 'can_be_user_disabled' => 1));
+			}
+		}
+	}
 }

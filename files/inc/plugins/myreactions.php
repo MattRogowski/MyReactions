@@ -39,6 +39,7 @@ $plugins->add_hook("admin_forum_menu", "myreactions_admin_forum_menu");
 $plugins->add_hook("admin_forum_action_handler", "myreactions_admin_forum_action_handler");
 $plugins->add_hook("admin_forum_permissions", "myreactions_admin_forum_permissions");
 $plugins->add_hook("admin_page_output_footer", "myreactions_settings_footer");
+$plugins->add_hook('admin_config_settings_change', 'myreactions_settings');
 
 global $templatelist;
 $templatelist .= ',myreactions_container,myreactions_reactions,myreactions_reaction,myreactions_reaction_image,myreactions_add,myreactions_react,myreactions_react_favourites,myreactions_profile,myreactions_reacted_button,myreactions_reacted,myreactions_reacted_row_grouped,myreactions_reacted_row_linear,myreactions_reacted_row_user';
@@ -90,6 +91,13 @@ function myreactions_deactivate()
 	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
 
 	return myreactions_do_deactivate();
+}
+
+function myreactions_settings()
+{
+	require_once MYBB_ROOT.'inc/plugins/myreactions/myreactions.php';
+
+	return myreactions_do_settings();
 }
 
 function myreactions_cache()
@@ -771,4 +779,20 @@ function myreactions_settings_footer()
 			</script>';
 		}
 	}
+}
+
+function myreactions_myalerts_enabled()
+{
+	global $mybb, $cache;
+
+	$plugins = $cache->read('plugins');
+	return (isset($plugins['active']['myalerts']) && $mybb->settings['myreactions_enable_myalerts'] == 1);
+}
+
+function myreactions_myalerts_type_id()
+{
+	global $db;
+
+	$query = $db->simple_select('alert_types', 'id', 'code = \'myreactions_received_reaction\'');
+	return $db->fetch_field($query, 'id');
 }
