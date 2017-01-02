@@ -680,8 +680,23 @@ function myreactions_profile()
 		$reactions_given = $lang->myreactions_profile_none;
 	}
 
-	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received_profile, $memprofile['reactions_received']);
-	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given_profile, $memprofile['reactions_given']);
+	$reactions_received_posts = $db->query('
+		SELECT count(distinct(pr.post_reaction_pid)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+		WHERE p.uid = '.$memprofile['uid'].'
+	');
+	$reactions_received_posts_count = $db->fetch_field($reactions_received_posts, 'count');
+	$reactions_given_posts = $db->query('
+		SELECT count(distinct(pr.post_reaction_pid)) as count
+		FROM '.TABLE_PREFIX.'post_reactions pr
+		JOIN '.TABLE_PREFIX.'posts p ON p.pid = pr.post_reaction_pid
+		WHERE pr.post_reaction_uid = '.$memprofile['uid'].'
+	');
+	$reactions_given_posts_count = $db->fetch_field($reactions_given_posts, 'count');
+
+	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received_profile, $memprofile['username'], $memprofile['reactions_received'], $reactions_received_posts_count);
+	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given_profile, $memprofile['username'], $memprofile['reactions_given'], $reactions_given_posts_count);
 
 	eval("\$myreactions = \"".$templates->get('myreactions_profile', 1, 0)."\";");
 }
