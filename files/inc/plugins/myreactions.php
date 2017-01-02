@@ -147,7 +147,7 @@ function myreactions_showthread($post = null)
 	}
 }
 
-function myreactions_postbit(&$post, $profile = false)
+function myreactions_postbit(&$post, $faked = false)
 {
 	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
@@ -195,7 +195,7 @@ function myreactions_postbit(&$post, $profile = false)
 				$class = $onclick = '';
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
 				$title = ' title="'.$received_reaction['reaction_name'];
-				if(in_array($received_reaction['post_reaction_id'], $reacted_ids) && !$profile)
+				if(in_array($received_reaction['post_reaction_id'], $reacted_ids) && !$faked)
 				{
 					$class = ' class="myreactions-reacted"';
 					$onclick = ' onclick="MyReactions.remove('.$received_reaction['post_reaction_rid'].','.$post['pid'].');"';
@@ -209,7 +209,7 @@ function myreactions_postbit(&$post, $profile = false)
 				eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
 			}
 
-			if($profile)
+			if($faked)
 			{
 				return $post_reactions;
 			}
@@ -247,7 +247,7 @@ function myreactions_postbit(&$post, $profile = false)
 				$class = $onclick = $title = '';
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 				$title = ' title="'.$info['name'];
-				if(in_array($rid, $reacted_reactions) && !$profile)
+				if(in_array($rid, $reacted_reactions) && !$faked)
 				{
 					$class = ' myreactions-reacted';
 					$onclick = ' onclick="MyReactions.remove('.$rid.','.$post['pid'].');"';
@@ -257,7 +257,7 @@ function myreactions_postbit(&$post, $profile = false)
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
 			}
 
-			if($profile)
+			if($faked)
 			{
 				return $post_reactions;
 			}
