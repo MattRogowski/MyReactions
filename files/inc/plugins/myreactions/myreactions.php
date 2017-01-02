@@ -354,8 +354,27 @@ thread=Reactions given in whole thread",
 			</div>
 		</td>
 	</tr>
+	{\$top_reacted_post}
 </table>
 <br />"
+	);
+	$templates[] = array(
+		"title" => "myreactions_profile_post",
+		"template" => "<tr>
+	<td class=\"tcat\">{\$lang->myreactions_profile_top_post}<span class=\"float_right\"><a href=\"{\$top_post_link}\">{\$lang->myreactions_profile_top_post_link} &raquo;</a></span></td>
+</tr>
+<tr>
+	<td class=\"trow1\" align=\"left\">
+		{\$top_post}
+	</td>
+</tr>
+<tr>
+	<td class=\"trow2\" align=\"left\">
+		<div class=\"myreactions-container myreactions-profile-container reactions-{\$size} myreactions-profile\">
+			{\$top_post_reactions}
+		</div>
+	</td>
+</tr>"
 	);
 	$templates[] = array(
 		"title" => "myreactions_reacted_button",

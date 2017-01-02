@@ -147,7 +147,7 @@ function myreactions_showthread($post = null)
 	}
 }
 
-function myreactions_postbit(&$post)
+function myreactions_postbit(&$post, $profile = false)
 {
 	global $mybb, $lang, $cache, $templates, $thread_reactions;
 
@@ -195,7 +195,7 @@ function myreactions_postbit(&$post)
 				$class = $onclick = '';
 				$reaction = $all_reactions[$received_reaction['post_reaction_rid']];
 				$title = ' title="'.$received_reaction['reaction_name'];
-				if(in_array($received_reaction['post_reaction_id'], $reacted_ids))
+				if(in_array($received_reaction['post_reaction_id'], $reacted_ids) && !$profile)
 				{
 					$class = ' class="myreactions-reacted"';
 					$onclick = ' onclick="MyReactions.remove('.$received_reaction['post_reaction_rid'].','.$post['pid'].');"';
@@ -207,6 +207,11 @@ function myreactions_postbit(&$post)
 			if($reactions)
 			{
 				eval("\$post_reactions = \"".$templates->get('myreactions_reactions')."\";");
+			}
+
+			if($profile)
+			{
+				return $post_reactions;
 			}
 
 			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted_ids && !$mybb->settings['myreactions_multiple']))
@@ -242,7 +247,7 @@ function myreactions_postbit(&$post)
 				$class = $onclick = $title = '';
 				eval("\$reaction_image = \"".$templates->get('myreactions_reaction_image')."\";");
 				$title = ' title="'.$info['name'];
-				if(in_array($rid, $reacted_reactions))
+				if(in_array($rid, $reacted_reactions) && !$profile)
 				{
 					$class = ' myreactions-reacted';
 					$onclick = ' onclick="MyReactions.remove('.$rid.','.$post['pid'].');"';
@@ -250,6 +255,11 @@ function myreactions_postbit(&$post)
 				}
 				$title .= '"';
 				eval("\$post_reactions .= \"".$templates->get('myreactions_reaction')."\";");
+			}
+
+			if($profile)
+			{
+				return $post_reactions;
 			}
 
 			if($mybb->user['uid'] > 0 && $post['uid'] != $mybb->user['uid'] && !($reacted_ids && !$mybb->settings['myreactions_multiple']))
@@ -698,7 +708,34 @@ function myreactions_profile()
 	$lang->myreactions_received = $lang->sprintf($lang->myreactions_received_profile, $memprofile['username'], $memprofile['reactions_received'], $reactions_received_posts_count);
 	$lang->myreactions_given = $lang->sprintf($lang->myreactions_given_profile, $memprofile['username'], $memprofile['reactions_given'], $reactions_given_posts_count);
 
-	eval("\$myreactions = \"".$templates->get('myreactions_profile', 1, 0)."\";");
+	$top_reacted_post = $db->query('
+		SELECT p.pid, p.tid, p.uid, p.message, count(post_reaction_id) as count
+		FROM '.TABLE_PREFIX.'posts p
+		JOIN '.TABLE_PREFIX.'post_reactions pr ON pr.post_reaction_pid = p.pid
+		WHERE p.uid = '.$memprofile['uid'].'
+		GROUP BY pr.post_reaction_pid
+		ORDER BY count DESC, pr.post_reaction_date DESC
+		LIMIT 1
+	');
+	$top_reacted_post = $db->fetch_array($top_reacted_post);
+	if($top_reacted_post)
+	{
+		require_once MYBB_ROOT.'inc/class_parser.php';
+		$parser = new postParser;
+		$top_post = $parser->text_parse_message(htmlspecialchars_uni($top_reacted_post['message']), array('filter_badwords' => true));
+		if(my_strlen($top_post) > 140)
+		{
+			$top_post = my_substr($top_post, 0, 140).'...';
+		}
+		$top_post_link = get_post_link($top_reacted_post['pid'], $top_reacted_post['tid']).'#pid'.$top_reacted_post['pid'];
+
+		myreactions_showthread($top_reacted_post);
+		$top_post_reactions = myreactions_postbit($top_reacted_post, true);
+
+		eval("\$top_reacted_post = \"".$templates->get('myreactions_profile_post')."\";");
+	}
+
+	eval("\$myreactions = \"".$templates->get('myreactions_profile')."\";");
 }
 
 function myreactions_by_post_and_user($pid, $uid)
