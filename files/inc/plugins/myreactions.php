@@ -44,7 +44,7 @@ function myreactions_info()
 		"website" => "https://github.com/MattRogowski/MyReactions",
 		"author" => "Matt Rogowski",
 		"authorsite" => "https://matt.rogow.ski",
-		"version" => "0.0.3",
+		"version" => "0.0.4",
 		"compatibility" => "18*",
 		"codename" => "myreactions"
 	);
