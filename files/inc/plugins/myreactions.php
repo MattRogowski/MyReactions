@@ -1,8 +1,8 @@
 <?php
 /**
- * MyReactions 0.0.3
+ * MyReactions 0.0.4
 
- * Copyright 2016 Matthew Rogowski
+ * Copyright 2017 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ if(!defined("IN_MYBB"))
 	die("Direct initialization of this file is not allowed.<br /><br />Please make sure IN_MYBB is defined.");
 }
 
-define("MYREACTIONS_VERSION", "0.0.3");
+define("MYREACTIONS_VERSION", "0.0.4");
 
 $plugins->add_hook('showthread_start', 'myreactions_showthread');
 $plugins->add_hook('postbit', 'myreactions_postbit');
@@ -342,7 +342,7 @@ function myreactions_misc()
 
 		require_once MYBB_ROOT.'inc/class_parser.php';
 		$parser = new postParser;
-		$post_preview = $parser->text_parse_message($post['message'], array('filter_badwords' => true));
+		$post_preview = $parser->text_parse_message(htmlspecialchars_uni($post['message']), array('filter_badwords' => true));
 		if(my_strlen($post_preview) > 140)
 		{
 			$post_preview = my_substr($post_preview, 0, 140).'...';
