@@ -120,7 +120,7 @@ function myreactions_uninstall()
 function myreactions_activate()
 {
 	global $mybb, $db;
-	
+
 	myreactions_deactivate();
 
 	$settings_group = array(
@@ -132,7 +132,7 @@ function myreactions_activate()
 	);
 	$db->insert_query("settinggroups", $settings_group);
 	$gid = $db->insert_id();
-	
+
 	$settings = array();
 	$settings[] = array(
 		"name" => "myreactions_type",
@@ -184,9 +184,9 @@ linear=Linear",
 		$db->insert_query("settings", $insert);
 		$i++;
 	}
-	
+
 	rebuild_settings();
-	
+
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 
 	$myreactions_info = myreactions_info();
@@ -195,7 +195,7 @@ linear=Linear",
 	find_replace_templatesets("postbit", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("postbit_classic", "#".preg_quote('<div class="post_controls">')."#i", '{$post[\'myreactions\']}<div class="post_controls">');
 	find_replace_templatesets("member_profile", "#".preg_quote('{$profilefields}')."#i", '{$profilefields}{$myreactions}');
-	
+
 	$templates = array();
 	$templates[] = array(
 		"title" => "myreactions_container",
@@ -294,7 +294,7 @@ linear=Linear",
 </table>
 <br />"
 	);
-	
+
 	foreach($templates as $template)
 	{
 		$insert = array(
@@ -305,7 +305,7 @@ linear=Linear",
 			"status" => "",
 			"dateline" => TIME_NOW
 		);
-		
+
 		$db->insert_query("templates", $insert);
 	}
 
@@ -315,9 +315,9 @@ linear=Linear",
 function myreactions_deactivate()
 {
 	global $mybb, $db;
-	
+
 	$db->delete_query("settinggroups", "name = 'myreactions'");
-	
+
 	$settings = array(
 		"myreactions_type",
 		"myreactions_size",
@@ -326,23 +326,23 @@ function myreactions_deactivate()
 	);
 	$settings = "'" . implode("','", $settings) . "'";
 	$db->delete_query("settings", "name IN ({$settings})");
-	
+
 	rebuild_settings();
-	
+
 	require_once MYBB_ROOT . 'inc/adminfunctions_templates.php';
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("showthread", "#".preg_quote('<script type="text/javascript" src="{$mybb->asset_url}/jscripts/myreactions.js?ver=').'(\d+)'.preg_quote('"></script>'."\r\n".'</head>')."#i", '</head>', 0);
 	find_replace_templatesets("postbit", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("postbit_classic", "#".preg_quote('{$post[\'myreactions\']}')."#i", '', 0);
 	find_replace_templatesets("member_profile", "#".preg_quote('{$myreactions}')."#i", '', 0);
-	
+
 	$db->delete_query("templates", "title IN ('myreactions_container','myreactions_reactions','myreactions_reaction','myreactions_reaction_image','myreactions_add','myreactions_react','myreactions_react_favourites','myreactions_profile')");
 }
 
 function myreactions_cache()
 {
 	global $db, $cache;
-	
+
 	$query = $db->simple_select('myreactions');
 	$myreactions = array();
 	while($myreaction = $db->fetch_array($query))
@@ -500,14 +500,14 @@ function myreactions_react()
 
 		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
 
-		$post_preview = $post['message'];
+		$post_preview = htmlspecialchars_uni($post['message']);
 		if(my_strlen($post['message']) > 100)
 		{
 			$post_preview = my_substr($post['message'], 0, 140).'...';
 		}
 
 		$reactions = $favourite_reactions = '';
-		
+
 		$has_favourites = false;
 		$query = $db->simple_select('post_reactions', 'post_reaction_rid, count(post_reaction_id) as count', 'post_reaction_uid = \''.$mybb->user['uid'].'\'', array('group_by' => 'post_reaction_rid', 'order_by' => 'count', 'order_dir' => 'desc', 'limit' => 10));
 		while($favourite_reaction = $db->fetch_array($query))
@@ -524,7 +524,7 @@ function myreactions_react()
 				$onclick = ' onclick="MyReactions.react('.$reaction['reaction_id'].','.$post['pid'].');"';
 			}
 			eval("\$favourite_reactions .= \"".$templates->get('myreactions_reaction_image', 1, 0)."\";");
-			
+
 		}
 		if($has_favourites)
 		{
@@ -558,7 +558,7 @@ function myreactions_react()
 		$post = get_post($mybb->input['pid']);
 
 		$given_reactions = myreactions_by_post_and_user($post['pid'], $mybb->user['uid']);
-		
+
 		if($post['uid'] == $mybb->user['uid'])
 		{
 			error($lang->myreactions_error_own_post);
@@ -667,11 +667,11 @@ function myreactions_by_post_and_user($pid, $uid)
 function myreactions_admin_forum_menu($sub_menu)
 {
 	global $lang;
-	
+
 	$lang->load("forum_myreactions");
-	
+
 	$sub_menu[] = array("id" => "myreactions", "title" => $lang->myreactions, "link" => "index.php?module=forum-myreactions");
-	
+
 	return $sub_menu;
 }
 
@@ -681,17 +681,17 @@ function myreactions_admin_forum_action_handler($actions)
 		"active" => "myreactions",
 		"file" => "myreactions.php"
 	);
-	
+
 	return $actions;
 }
 
 function myreactions_admin_forum_permissions($admin_permissions)
 {
 	global $lang;
-	
+
 	$lang->load("forum_myreactions");
-	
+
 	$admin_permissions['myreactions'] = $lang->can_manage_myreactions;
-	
+
 	return $admin_permissions;
 }
