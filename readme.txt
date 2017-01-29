@@ -3,7 +3,7 @@ Description: Add emoji reactions to posts
 Website: https://github.com/MattRogowski/MyReactions
 Author: Matt Rogowski
 Authorsite: https://matt.rogow.ski
-Version: 0.0.3
+Version: 0.0.4
 Compatibility: 1.8.x
 Files: 5
 Templates added: 8
@@ -35,8 +35,9 @@ Change Log:
 27/09/16 - v0.0.1 -> Initial 'beta' release.
 27/09/16 - v0.0.1 -> v0.0.2 -> Fixes issue with forums in subdirectories, and fixes CSRF issue with adding and removing reactions. To upgrade, reupload ./inc/plugins/myreactions.php and ./jscripts/myreactions.js. Thanks to Devilshakerz for the CSRF tip (and my bad for forgetting to do it in the first place)
 07/10/16 - v0.0.2 -> v0.0.3 -> Fixes bug where button to add reactions was displayed to guests. To upgrade, reupload ./inc/plugins/myreactions.php
+29/01/17 - v0.0.3 -> v0.0.4 -> Fixes bug with hardcoded table prefix and XSS bug when reacting to posts. Thanks to myudev and Cu8eeeR/Eldenroot for the fixes/reports. To upgrade, reupload ./inc/plugins/myreactions.php
 
-Copyright 2016 Matthew Rogowski
+Copyright 2017 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

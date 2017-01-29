@@ -1,8 +1,8 @@
 <?php
 /**
- * MyReactions 0.0.3
+ * MyReactions 0.0.4
 
- * Copyright 2016 Matthew Rogowski
+ * Copyright 2017 Matthew Rogowski
 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
