@@ -66,6 +66,10 @@ $l['confirm_reaction_deletion'] = "Are you sure you wish to delete this reaction
 
 
 
+$l['facebook_reaction'] = 'Facebook Reaction';
+$l['facebook_reaction_primary'] = 'Primary Emoji';
+$l['facebook_reaction_other'] = 'Other Emojis';
+$l['facebook_na'] = 'N/A';
 $l['import'] = 'Import Data';
 $l['import_from'] = 'Import Data from {1}';
 $l['import_reactions_data'] = 'Import MyReactions Data';

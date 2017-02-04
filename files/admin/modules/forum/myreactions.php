@@ -567,61 +567,111 @@ if(!$mybb->input['action'])
 
 	$page->output_nav_tabs($sub_tabs, 'manage_reactions');
 
-	$pagenum = $mybb->get_input('page', MyBB::INPUT_INT);
-	if($pagenum)
+	$query = $db->simple_select("myreactions", "*", "", array('order_by' => 'reaction_name'));
+	$reactions = '';
+	$facebook_reactions = array('like','love','haha','wow','sad','angry','none');
+	$facebook_reaction_emojis = array();
+	foreach($facebook_reactions as $fbr)
 	{
-		$start = ($pagenum-1) * 20;
+		$facebook_reaction_emojis[$fbr] = array('primary' => '', 'other' => array());
 	}
-	else
-	{
-		$start = 0;
-		$pagenum = 1;
-	}
-
-
-	$table = new Table;
-	$table->construct_header($lang->image, array("class" => "align_center", "width" => 1));
-	$table->construct_header($lang->name, array("width" => "35%"));
-	$table->construct_header($lang->controls, array("class" => "align_center", "colspan" => 2));
-
-	$query = $db->simple_select("myreactions", "*", "", array('limit_start' => $start, 'limit' => 20, 'order_by' => 'reaction_name'));
 	while($reaction = $db->fetch_array($query))
 	{
-		if(my_strpos($reaction['reaction_image'], "p://") || substr($reaction['reaction_image'], 0, 1) == "/")
+	    $item = '<fieldset class="float_left" style="width: 140px;margin: 14px"><strong style="display:inline-block;min-height:30px">'.htmlspecialchars_uni($reaction['reaction_name']).'</strong><div>';
+
+	    if(my_strpos($reaction['reaction_image'], "p://") || substr($reaction['reaction_image'], 0, 1) == "/")
+	    {
+	        $image = $reaction['reaction_image'];
+	    }
+	    else
+	    {
+	        $image = "../".$reaction['reaction_image'];
+	    }
+	    foreach(array(16,20,24,28,32) as $size)
+	    {
+	        $item .= "<img src=\"{$image}\" alt=\"\" class=\"reaction reaction_{$reaction['reaction_id']}\" style=\"padding: 2px;\" width=\"".$size."\" height=\"".$size."\" />";
+	    }
+
+		$fieldset_style = '';
+		if($reaction['reaction_facebook_primary'])
 		{
-			$image = $reaction['reaction_image'];
+			$fieldset_style = ' style="background:#c3d08b"';
+		}
+		$item .= '</div><div style="border-top:1px solid #ccc;margin-top:10px;padding-top:10px"><fieldset'.$fieldset_style.'><legend>'.$lang->facebook_reaction.'</legend>';
+
+		if($reaction['reaction_facebook'])
+		{
+			$item .= '<img src="../images/reactions/facebook_reactions/'.$reaction['reaction_facebook'].'.jpg" style="border: 2px solid #fff;border-radius: 32px" width="32" height="32" />';
+
+			if($reaction['reaction_facebook_primary'])
+			{
+				$facebook_reaction_emojis[$reaction['reaction_facebook']]['primary'] = $reaction;
+			}
+			else
+			{
+				$facebook_reaction_emojis[$reaction['reaction_facebook']]['other'][] = $reaction;
+			}
 		}
 		else
 		{
-			$image = "../".$reaction['reaction_image'];
+			$item .= '<span style="display:inline-block;line-height:36px">'.$lang->facebook_na.'</span>';
+
+			$facebook_reaction_emojis['none']['other'][] = $reaction;
 		}
 
-		$images = array();
-		foreach(array(16,20,24,28,32) as $size)
-		{
-			$images[] = "<img src=\"{$image}\" alt=\"\" class=\"reaction reaction_{$reaction['reaction_id']}\" width=\"".$size."\" height=\"".$size."\" />";
-		}
+	    $item .= '</fieldset></div><div style="border-top:1px solid #ccc;margin-top:10px;padding-top:10px">';
 
-		$table->construct_cell(implode(' ', $images), array("class" => "align_center", "width" => "20%"));
-		$table->construct_cell(htmlspecialchars_uni($reaction['reaction_name']), array("width" => "60%"));
+		$popup = new PopupMenu("reaction_{$reaction['reaction_id']}", $lang->options);
+	    $popup->add_item($lang->edit, "index.php?module=forum-myreactions&amp;action=edit&amp;reaction_id={$reaction['reaction_id']}");
+	    $popup->add_item($lang->delete, "index.php?module=forum-myreactions&amp;action=delete&amp;reaction_id={$reaction['reaction_id']}&amp;my_post_key={$mybb->post_code}", "return AdminCP.deleteConfirmation(this, '{$lang->confirm_reaction_deletion}')");
+	    $item .= '<div class="float_right" style="padding: 4px;">'.$popup->fetch().'</div>';
 
-		$table->construct_cell("<a href=\"index.php?module=forum-myreactions&amp;action=edit&amp;reaction_id={$reaction['reaction_id']}\">{$lang->edit}</a>", array("class" => "align_center", "width" => "10%"));
-		$table->construct_cell("<a href=\"index.php?module=forum-myreactions&amp;action=delete&amp;reaction_id={$reaction['reaction_id']}&amp;my_post_key={$mybb->post_code}\" onclick=\"return AdminCP.deleteConfirmation(this, '{$lang->confirm_reaction_deletion}')\">{$lang->delete}</a>", array("class" => "align_center", "width" => "10%"));
-		$table->construct_row();
+		$item .= '</div></fieldset>';
+
+	    $reactions .= $item;
 	}
 
-	if($table->num_rows() == 0)
+	if($reactions)
 	{
-		$table->construct_cell($lang->no_reactions, array('colspan' => 5));
+		$table = new Table;
+		$table->construct_header($lang->facebook_reaction, array("class" => "align_center", "width" => "1px"));
+		$table->construct_header($lang->facebook_reaction_primary, array("class" => "align_center", "width" => "1px"));
+		$table->construct_header($lang->facebook_reaction_other);
+
+		foreach($facebook_reactions as $fbr)
+		{
+			if($fbr == 'none')
+			{
+				$table->construct_cell($lang->facebook_na, array("class" => "align_center", "colspan" => 2));
+			}
+			else
+			{
+				$table->construct_cell('<img src="../images/reactions/facebook_reactions/'.$fbr.'.jpg" style="border: 2px solid #fff;border-radius: 32px" width="32" height="32" />', array("class" => "align_center"));
+				$table->construct_cell('<img src="../'.$facebook_reaction_emojis[$fbr]['primary']['reaction_image'].'" style="padding: 2px" width="32" height="32" />', array("class" => "align_center"));
+			}
+
+			$other_reactions = '';
+			foreach($facebook_reaction_emojis[$fbr]['other'] as $reaction)
+			{
+				$other_reactions .= '<img src="../'.$reaction['reaction_image'].'" style="padding: 2px" width="24" height="24" />';
+			}
+			$table->construct_cell($other_reactions);
+			$table->construct_row();
+		}
+		$table->output($lang->manage_reactions);
+
+		$table = new Table;
+		$table->construct_cell($reactions);
 		$table->construct_row();
+		$table->output($lang->manage_reactions);
 	}
-
-	$table->output($lang->manage_reactions);
-
-	$query = $db->simple_select("myreactions", "COUNT(reaction_id) as myreactions");
-	$total_rows = $db->fetch_field($query, "myreactions");
-
-	echo "<br />".draw_admin_pagination($pagenum, "20", $total_rows, "index.php?module=forum-myreactions&amp;page={page}");
+	else
+	{
+		$table = new Table;
+		$table->construct_cell($lang->no_reactions);
+		$table->construct_row();
+		$table->output($lang->manage_reactions);
+	}
 
 	$page->output_footer();
 }
