@@ -634,30 +634,44 @@ if(!$mybb->input['action'])
 	if($reactions)
 	{
 		$table = new Table;
-		$table->construct_header($lang->facebook_reaction, array("class" => "align_center", "width" => "1px"));
-		$table->construct_header($lang->facebook_reaction_primary, array("class" => "align_center", "width" => "1px"));
-		$table->construct_header($lang->facebook_reaction_other);
+
+		foreach($facebook_reactions as $fbr)
+		{
+			$table->construct_header(ucwords($fbr), array("class" => "align_center", "width" => ($fbr == 'none'?'10%':'15%'), "colspan" => ($fbr == 'none'?1:2)));
+		}
 
 		foreach($facebook_reactions as $fbr)
 		{
 			if($fbr == 'none')
 			{
-				$table->construct_cell($lang->facebook_na, array("class" => "align_center", "colspan" => 2));
+				$other_reactions = '';
+				foreach($facebook_reaction_emojis[$fbr]['other'] as $reaction)
+				{
+					$other_reactions .= '<img src="../'.$reaction['reaction_image'].'" style="padding: 2px" width="24" height="24" />';
+				}
+				$table->construct_cell($other_reactions, array("class" => "align_center", "style" => "border-bottom: 0", "rowspan" => 2));
 			}
 			else
 			{
-				$table->construct_cell('<img src="../images/reactions/facebook_reactions/'.$fbr.'.jpg" style="border: 2px solid #fff;border-radius: 32px" width="32" height="32" />', array("class" => "align_center"));
-				$table->construct_cell('<img src="../'.$facebook_reaction_emojis[$fbr]['primary']['reaction_image'].'" style="padding: 2px" width="32" height="32" />', array("class" => "align_center"));
+				$table->construct_cell('<img src="../images/reactions/facebook_reactions/'.$fbr.'.jpg" style="border: 2px solid #fff;border-radius: 32px" width="32" height="32" />', array("style" => "text-align:right"));
+				$table->construct_cell('<img src="../'.$facebook_reaction_emojis[$fbr]['primary']['reaction_image'].'" style="padding: 2px" width="32" height="32" />');
 			}
-
+		}
+		$table->construct_row();
+		foreach($facebook_reactions as $fbr)
+		{
+			if($fbr == 'none')
+			{
+				continue;
+			}
 			$other_reactions = '';
 			foreach($facebook_reaction_emojis[$fbr]['other'] as $reaction)
 			{
 				$other_reactions .= '<img src="../'.$reaction['reaction_image'].'" style="padding: 2px" width="24" height="24" />';
 			}
-			$table->construct_cell($other_reactions);
-			$table->construct_row();
+			$table->construct_cell($other_reactions, array("class" => "align_center", "colspan" => 2));
 		}
+		$table->construct_row();
 		$table->output($lang->manage_reactions);
 
 		$table = new Table;
