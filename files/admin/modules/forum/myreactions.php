@@ -577,7 +577,7 @@ if(!$mybb->input['action'])
 	}
 	while($reaction = $db->fetch_array($query))
 	{
-	    $item = '<fieldset class="float_left" style="width: 140px;margin: 14px"><strong style="display:inline-block;min-height:30px">'.htmlspecialchars_uni($reaction['reaction_name']).'</strong><div>';
+	    $item = '<fieldset class="float_left reaction_item reaction_facebook_'.($reaction['reaction_facebook']?$reaction['reaction_facebook']:'none').'" style="width: 112px;margin: 5px"><strong style="display:inline-block;min-height:30px">'.htmlspecialchars_uni($reaction['reaction_name']).'</strong><div>';
 
 	    if(my_strpos($reaction['reaction_image'], "p://") || substr($reaction['reaction_image'], 0, 1) == "/")
 	    {
@@ -587,39 +587,28 @@ if(!$mybb->input['action'])
 	    {
 	        $image = "../".$reaction['reaction_image'];
 	    }
-	    foreach(array(16,20,24,28,32) as $size)
-	    {
-	        $item .= "<img src=\"{$image}\" alt=\"\" class=\"reaction reaction_{$reaction['reaction_id']}\" style=\"padding: 2px;\" width=\"".$size."\" height=\"".$size."\" />";
-	    }
+	    $item .= "<img src=\"{$image}\" alt=\"\" class=\"reaction reaction_{$reaction['reaction_id']}\" style=\"padding: 2px;\" width=\"32\" height=\"32\" />";
 
-		$fieldset_style = '';
-		if($reaction['reaction_facebook_primary'])
-		{
-			$fieldset_style = ' style="background:#c3d08b"';
-		}
-		$item .= '</div><div style="border-top:1px solid #ccc;margin-top:10px;padding-top:10px"><fieldset'.$fieldset_style.'><legend>'.$lang->facebook_reaction.'</legend>';
+		$item .= '</div>';
 
 		if($reaction['reaction_facebook'])
 		{
-			$item .= '<img src="../images/reactions/facebook_reactions/'.$reaction['reaction_facebook'].'.jpg" style="border: 2px solid #fff;border-radius: 32px" width="32" height="32" />';
-
 			if($reaction['reaction_facebook_primary'])
 			{
 				$facebook_reaction_emojis[$reaction['reaction_facebook']]['primary'] = $reaction;
 			}
-			else
-			{
-				$facebook_reaction_emojis[$reaction['reaction_facebook']]['other'][] = $reaction;
-			}
+		}
+
+	    $item .= '<div style="border-top:1px solid #ccc;margin-top:10px;padding-top:10px">';
+
+		if($reaction['reaction_facebook'])
+		{
+			$item .= '<img src="../images/reactions/facebook_reactions/'.$reaction['reaction_facebook'].'.jpg" style="border: 2px solid #fff;border-radius: 20px" width="20" height="20" />';
 		}
 		else
 		{
-			$item .= '<span style="display:inline-block;line-height:36px">'.$lang->facebook_na.'</span>';
-
-			$facebook_reaction_emojis['none']['other'][] = $reaction;
+			$item .= '<span style="display:inline-block;width:24px;height:24px"></span>';
 		}
-
-	    $item .= '</fieldset></div><div style="border-top:1px solid #ccc;margin-top:10px;padding-top:10px">';
 
 		$popup = new PopupMenu("reaction_{$reaction['reaction_id']}", $lang->options);
 	    $popup->add_item($lang->edit, "index.php?module=forum-myreactions&amp;action=edit&amp;reaction_id={$reaction['reaction_id']}");
@@ -644,12 +633,7 @@ if(!$mybb->input['action'])
 		{
 			if($fbr == 'none')
 			{
-				$other_reactions = '';
-				foreach($facebook_reaction_emojis[$fbr]['other'] as $reaction)
-				{
-					$other_reactions .= '<img src="../'.$reaction['reaction_image'].'" style="padding: 2px" width="24" height="24" />';
-				}
-				$table->construct_cell($other_reactions, array("class" => "align_center", "style" => "border-bottom: 0", "rowspan" => 2));
+				$table->construct_cell('-', array("class" => "align_center"));
 			}
 			else
 			{
@@ -660,16 +644,7 @@ if(!$mybb->input['action'])
 		$table->construct_row();
 		foreach($facebook_reactions as $fbr)
 		{
-			if($fbr == 'none')
-			{
-				continue;
-			}
-			$other_reactions = '';
-			foreach($facebook_reaction_emojis[$fbr]['other'] as $reaction)
-			{
-				$other_reactions .= '<img src="../'.$reaction['reaction_image'].'" style="padding: 2px" width="24" height="24" />';
-			}
-			$table->construct_cell($other_reactions, array("class" => "align_center", "colspan" => 2));
+			$table->construct_cell('<a href="javascript:void(0)" data-reaction="'.$fbr.'">'.$lang->sprintf($lang->facebook_filter, ucwords($fbr)).'</a>', array("class" => "align_center", "colspan" => ($fbr == 'none'?1:2)));
 		}
 		$table->construct_row();
 		$table->output($lang->manage_reactions);
@@ -678,6 +653,26 @@ if(!$mybb->input['action'])
 		$table->construct_cell($reactions);
 		$table->construct_row();
 		$table->output($lang->manage_reactions);
+
+		echo "<script>
+		$(function() {
+			$('[data-reaction]').click(function() {
+				if($(this).hasClass('active'))
+				{
+					$(this).removeClass('active').attr('style', '');
+					$('.reaction_item').show();
+				}
+				else
+				{
+					$('[data-reaction]').removeClass('active').attr('style', '');
+					reaction = $(this).data('reaction');
+					$('.reaction_item').hide();
+					$('.reaction_item.reaction_facebook_'+reaction).show();
+					$(this).addClass('active').attr('style', 'font-weight:bold');
+				}
+			});
+		});
+		</script>";
 	}
 	else
 	{
