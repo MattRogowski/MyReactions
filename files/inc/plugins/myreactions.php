@@ -166,7 +166,7 @@ function myreactions_postbit(&$post, $faked = false)
 	$lang->load('myreactions');
 
 	$received_reactions = $reacted_ids = $reacted_reactions = array();
-	if(array_key_exists($post['pid'], $thread_reactions))
+	if(is_array($thread_reactions) && array_key_exists($post['pid'], $thread_reactions))
 	{
 		$received_reactions = $thread_reactions[$post['pid']];
 		foreach($received_reactions as $reaction)
